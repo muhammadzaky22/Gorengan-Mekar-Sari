@@ -43,6 +43,8 @@
     delivery_note: "Ongkir dikonfirmasi melalui WhatsApp",
     address: "Jalan Mekarsari RT 20 No. 18, Balikpapan",
     whatsapp: "6289512340428",
+    online_payment_enabled: false,
+    payment_instructions: "",
     timezone: "Asia/Makassar"
   };
 
@@ -56,6 +58,23 @@
     return Object.values(value || {})
       .filter(product => product && product.id)
       .sort((a, b) => Number(a.sort_order || 0) - Number(b.sort_order || 0));
+  }
+
+  function requireAdminSession(session) {
+    if (!session || !session.user || session.user.uid !== cfg.adminUid) {
+      throw new Error("Akun ini bukan admin Gorengan Mekarsari.");
+    }
+  }
+
+  function sortSales(value) {
+    return Object.entries(value || {})
+      .map(([id, sale]) => ({ id, ...(sale || {}) }))
+      .filter(sale => sale && sale.id)
+      .sort((a, b) => {
+        const aDate = `${a.paid_date || ""} ${a.created_at || ""}`;
+        const bDate = `${b.paid_date || ""} ${b.created_at || ""}`;
+        return bDate.localeCompare(aDate);
+      });
   }
 
   function waitForAuthState() {
@@ -104,6 +123,14 @@
       return snapshot.val() || null;
     },
 
+    async getSales() {
+      needsFirebase();
+      const session = await this.getSession();
+      requireAdminSession(session);
+      const snapshot = await database.ref("sales").once("value");
+      return sortSales(snapshot.val());
+    },
+
     async signIn(email, password) {
       needsFirebase();
       const result = await auth.signInWithEmailAndPassword(email, password);
@@ -133,9 +160,7 @@
     async ensureInitialData() {
       needsFirebase();
       const session = await this.getSession();
-      if (!session || !(await this.isAdmin(session.user.uid))) {
-        throw new Error("Akun ini bukan admin Gorengan Mekarsari.");
-      }
+      requireAdminSession(session);
 
       const [productsSnapshot, settingsSnapshot] = await Promise.all([
         database.ref("products").once("value"),
@@ -162,9 +187,7 @@
     async updateProduct(id, changes) {
       needsFirebase();
       const session = await this.getSession();
-      if (!session || !(await this.isAdmin(session.user.uid))) {
-        throw new Error("Akun ini bukan admin Gorengan Mekarsari.");
-      }
+      requireAdminSession(session);
       const ref = database.ref(`products/${id}`);
       await ref.update({ ...changes, id, updated_at: new Date().toISOString() });
       return (await ref.once("value")).val();
@@ -173,12 +196,46 @@
     async updateSettings(changes) {
       needsFirebase();
       const session = await this.getSession();
-      if (!session || !(await this.isAdmin(session.user.uid))) {
-        throw new Error("Akun ini bukan admin Gorengan Mekarsari.");
-      }
+      requireAdminSession(session);
       const ref = database.ref("settings/main");
       await ref.update({ ...changes, id: "main", updated_at: new Date().toISOString() });
       return (await ref.once("value")).val();
+    },
+
+    async createSale(sale) {
+      needsFirebase();
+      const session = await this.getSession();
+      requireAdminSession(session);
+
+      const total = Math.round(Number(sale?.total || 0));
+      if (!Number.isFinite(total) || total <= 0) {
+        throw new Error("Total transaksi harus lebih dari Rp 0.");
+      }
+
+      const ref = database.ref("sales").push();
+      const data = {
+        invoice_number: String(sale?.invoice_number || "").trim(),
+        buyer_name: String(sale?.buyer_name || "").trim(),
+        payment_method: String(sale?.payment_method || "Tunai").trim() || "Tunai",
+        note: String(sale?.note || "").trim(),
+        paid_date: /^\d{4}-\d{2}-\d{2}$/.test(String(sale?.paid_date || ""))
+          ? sale.paid_date
+          : new Date().toISOString().slice(0, 10),
+        total,
+        status: "paid",
+        created_at: new Date().toISOString(),
+        created_by: session.user.uid
+      };
+      await ref.set(data);
+      return { id: ref.key, ...data };
+    },
+
+    async removeSale(id) {
+      needsFirebase();
+      const session = await this.getSession();
+      requireAdminSession(session);
+      if (!id) throw new Error("Transaksi tidak ditemukan.");
+      await database.ref(`sales/${id}`).remove();
     }
   };
 })();

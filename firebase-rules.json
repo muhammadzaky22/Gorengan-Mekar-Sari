@@ -11,6 +11,10 @@
         ".read": true,
         ".write": "auth != null && auth.uid === 'YZ164ihHK1RQmNVVSi4O5bC6JNB3'"
       }
+    },
+    "sales": {
+      ".read": "auth != null && auth.uid === 'YZ164ihHK1RQmNVVSi4O5bC6JNB3'",
+      ".write": "auth != null && auth.uid === 'YZ164ihHK1RQmNVVSi4O5bC6JNB3'"
     }
   }
 }

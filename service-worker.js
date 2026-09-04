@@ -1,8 +1,9 @@
-const CACHE = "gorengan-mekarsari-v5-firebase";
+const CACHE = "gorengan-mekarsari-v7-admin-app";
 const ASSETS = [
   "./",
   "./index.html",
   "./manifest.json",
+  "./admin-manifest.json",
   "./stok-config.js",
   "./icon-192.png",
   "./icon-512.png",

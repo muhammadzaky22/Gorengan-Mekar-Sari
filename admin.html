@@ -5,32 +5,42 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Admin Gorengan Mekarsari</title>
 <meta name="theme-color" content="#2d1a0d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Admin Gorengan">
+<link rel="manifest" href="admin-manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
 <style>
 :root{--bg:#fff8ef;--card:#fff;--line:#eadfce;--text:#302418;--muted:#74685a;--yellow:#ffd42c;--green:#22b14c;--red:#d63b32;--shadow:0 14px 30px rgba(48,28,10,.08)}
 *{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
 .wrap{width:min(980px,calc(100% - 24px));margin:24px auto 70px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}.top h1{margin:0}
 .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow);margin-bottom:16px}
-input,select{width:100%;padding:12px;border:1px solid #ddd3c4;border-radius:10px;font:inherit;background:#fff}
+input,select,textarea{width:100%;padding:12px;border:1px solid #ddd3c4;border-radius:10px;font:inherit;background:#fff}
+textarea{min-height:82px;resize:vertical}
 label{display:block;font-weight:800;margin:10px 0 6px}.btn{border:0;border-radius:11px;padding:12px 15px;font-weight:900;cursor:pointer}.primary{background:var(--yellow);color:#2d1a0d}.green{background:var(--green);color:#fff}.ghost{background:#f5f1eb;color:#44372c}.red{background:#fff0ef;color:#ae2c26}
 .login{max-width:460px;margin:70px auto}.login h1{margin-top:0}.hint{color:var(--muted);line-height:1.55;font-size:.92rem}.msg{margin-top:12px;padding:10px 12px;border-radius:10px;background:#f7f2e8}.error{background:#fff0ef;color:#a92d26}
+.install-admin{width:100%;margin-top:9px;background:#2d1a0d;color:#fff}.install-hint{text-align:center;margin-top:9px;color:var(--muted);font-size:.8rem;line-height:1.4}
 .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}.status{font-size:.9rem;color:var(--muted)}
 .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.product{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff}.product-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.product h3{margin:0}.switch{display:flex;align-items:center;gap:8px;font-weight:800}.switch input{width:22px;height:22px}.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.save{width:100%;margin-top:12px}
 .settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.full{grid-column:1/-1}
+.income-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:15px 0}.income-box{padding:14px;border:1px solid var(--line);border-radius:13px;background:#fffdf9}.income-box small{display:block;color:var(--muted);font-weight:700}.income-box strong{display:block;margin-top:5px;font-size:1.15rem}.income-box span{display:block;margin-top:4px;color:var(--muted);font-size:.82rem}.sale-form{border-top:1px solid var(--line);padding-top:14px;margin-top:14px}.sale-form h3{margin:0 0 5px}.sale-list{display:flex;flex-direction:column;gap:9px;margin-top:12px}.sale-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border:1px solid var(--line);border-radius:13px;background:#fff}.sale-row strong{display:block}.sale-meta{color:var(--muted);font-size:.86rem;line-height:1.45;margin-top:3px}.sale-right{text-align:right;flex:none}.sale-right strong{color:#16733a}.sale-right button{margin-top:7px;padding:7px 9px;font-size:.8rem}.empty-sales{padding:17px;border:1px dashed #d8c9b6;border-radius:12px;color:var(--muted);text-align:center}
 .hidden{display:none!important}
-@media(max-width:650px){.grid,.settings-grid,.row2{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}.top .actions{width:100%;display:flex;gap:8px}.top .actions button{flex:1}}
+@media(max-width:650px){.grid,.settings-grid,.row2,.income-summary{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}.top .actions{width:100%;display:flex;gap:8px}.top .actions button{flex:1}.sale-row{align-items:flex-start;flex-direction:column}.sale-right{text-align:left;width:100%}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <section id="loginView" class="login card">
     <h1>🔐 Admin Gorengan</h1>
-    <p class="hint">Login untuk mengubah stok, harga, badge, dan jam toko. Perubahan langsung terbaca di website pelanggan tanpa upload GitHub lagi.</p>
+    <p class="hint">Login untuk mengubah stok, harga, badge, pembayaran online, serta mencatat pendapatan. Perubahan langsung terbaca di website pelanggan tanpa upload GitHub lagi.</p>
     <label>Email</label>
     <input id="email" type="email" autocomplete="username" placeholder="email admin">
     <label>Password</label>
     <input id="password" type="password" autocomplete="current-password" placeholder="password">
     <button class="btn green" style="width:100%;margin-top:14px" onclick="login()">Masuk</button>
     <button class="btn ghost" type="button" style="width:100%;margin-top:9px" onclick="resetPassword()">Lupa password?</button>
+    <button class="btn install-admin" id="installAdminBtn" type="button" onclick="installAdmin()">📲 Install Aplikasi Admin</button>
+    <div class="install-hint" id="installAdminHint">Setelah di-install, Admin punya ikon sendiri di layar utama HP.</div>
     <div id="loginMsg"></div>
   </section>
 
@@ -77,6 +87,17 @@ label{display:block;font-weight:800;margin:10px 0 6px}.btn{border:0;border-radiu
           <input id="whatsapp" type="text">
         </div>
         <div class="full">
+          <label class="switch">
+            <input id="online_payment_enabled" type="checkbox">
+            <span>Tampilkan pilihan pembayaran online (QRIS / transfer)</span>
+          </label>
+        </div>
+        <div class="full">
+          <label>Info pembayaran online</label>
+          <textarea id="payment_instructions" placeholder="Contoh: Scan QRIS yang dikirim admin, atau transfer ke BCA 123456789 a/n ..."></textarea>
+          <div class="status">Teks ini tampil untuk pelanggan yang memilih pembayaran online; pembayaran tetap dikonfirmasi lewat WhatsApp.</div>
+        </div>
+        <div class="full">
           <label>Catatan ongkir</label>
           <input id="delivery_note" type="text">
         </div>
@@ -87,6 +108,66 @@ label{display:block;font-weight:800;margin:10px 0 6px}.btn{border:0;border-radiu
       </div>
       <button class="btn primary save" onclick="saveSettings()">Simpan Pengaturan Toko</button>
       <div id="settingsMsg"></div>
+    </div>
+
+    <div class="card">
+      <div class="toolbar">
+        <div>
+          <h2 style="margin:0">📊 Laporan Pendapatan</h2>
+          <div class="status">Catat hanya transaksi yang pembayarannya sudah benar-benar diterima.</div>
+        </div>
+        <button class="btn ghost" onclick="loadSales()">↻ Refresh Laporan</button>
+      </div>
+
+      <div class="income-summary">
+        <div class="income-box"><small>Hari ini</small><strong id="incomeToday">Rp 0</strong><span id="incomeTodayCount">0 transaksi</span></div>
+        <div class="income-box"><small>Bulan ini</small><strong id="incomeMonth">Rp 0</strong><span id="incomeMonthCount">0 transaksi</span></div>
+        <div class="income-box"><small>Semua pendapatan</small><strong id="incomeAll">Rp 0</strong><span id="incomeAllCount">0 transaksi</span></div>
+        <div class="income-box"><small>Transaksi terakhir</small><strong id="incomeLatest">—</strong><span id="incomeLatestText">Belum ada data</span></div>
+      </div>
+
+      <div class="sale-form">
+        <h3>Catat Transaksi Lunas</h3>
+        <div class="status">Salin nomor nota dari pesanan WhatsApp bila ada. Nomor juga boleh dikosongkan.</div>
+        <div class="settings-grid">
+          <div>
+            <label>Tanggal pembayaran</label>
+            <input id="sale_paid_date" type="date">
+          </div>
+          <div>
+            <label>Metode pembayaran</label>
+            <select id="sale_payment_method">
+              <option>Tunai</option>
+              <option>QRIS</option>
+              <option>Transfer Bank</option>
+              <option>E-Wallet</option>
+            </select>
+          </div>
+          <div>
+            <label>Nama pembeli <span class="status">(opsional)</span></label>
+            <input id="sale_buyer_name" type="text" placeholder="Contoh: Zaky">
+          </div>
+          <div>
+            <label>Nomor nota <span class="status">(opsional)</span></label>
+            <input id="sale_invoice_number" type="text" placeholder="Contoh: GM-20260904-123456">
+          </div>
+          <div class="full">
+            <label>Total transaksi</label>
+            <input id="sale_total" type="number" min="1" step="500" inputmode="numeric" placeholder="Contoh: 25000">
+          </div>
+          <div class="full">
+            <label>Catatan <span class="status">(opsional)</span></label>
+            <textarea id="sale_note" placeholder="Contoh: Pesanan antar, ongkir dibayar terpisah"></textarea>
+          </div>
+        </div>
+        <button class="btn green save" onclick="saveSale()">✅ Catat Transaksi Lunas</button>
+        <div id="salesMsg"></div>
+      </div>
+
+      <div class="sale-form">
+        <h3>Riwayat Transaksi Terbaru</h3>
+        <div id="salesList" class="sale-list"></div>
+      </div>
     </div>
   </section>
 </div>
@@ -103,6 +184,21 @@ function message(el, text, isError=false){
   el.innerHTML = text ? `<div class="msg ${isError?'error':''}">${text}</div>` : '';
 }
 function rupiah(n){ return "Rp " + Number(n || 0).toLocaleString("id-ID"); }
+function escapeHTML(value){
+  return String(value ?? "").replace(/[&<>'"]/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[char]));
+}
+function todayStore(){
+  const parts = new Intl.DateTimeFormat("en-CA", {timeZone:"Asia/Makassar", year:"numeric", month:"2-digit", day:"2-digit"}).formatToParts(new Date());
+  const get = type => parts.find(part => part.type === type)?.value;
+  return `${get("year")}-${get("month")}-${get("day")}`;
+}
+function displayDate(value){
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(value || ""))) return "Tanggal belum diisi";
+  return new Intl.DateTimeFormat("id-ID", {day:"2-digit",month:"short",year:"numeric"}).format(new Date(`${value}T12:00:00`));
+}
+function makeAdminInvoice(){
+  return `GM-${todayStore().replaceAll("-","")}-${String(Date.now()).slice(-6)}`;
+}
 
 async function login(){
   if(!["http:", "https:"].includes(window.location.protocol)){
@@ -152,6 +248,7 @@ async function enterAdmin(){
     $("loginView").classList.add("hidden");
     $("adminView").classList.remove("hidden");
     $("accountInfo").textContent = session.user.email;
+    if (!$("sale_paid_date").value) $("sale_paid_date").value = todayStore();
     await loadAll();
   }catch(e){
     message($("loginMsg"), GM_DB.errorMessage?.(e) || e.message || String(e), true);
@@ -198,7 +295,10 @@ async function loadAll(){
     $("delivery_note").value = settings.delivery_note || "";
     $("address").value = settings.address || "";
     $("whatsapp").value = settings.whatsapp || "";
+    $("online_payment_enabled").checked = Boolean(settings.online_payment_enabled);
+    $("payment_instructions").value = settings.payment_instructions || "";
   }
+  await loadSales();
 }
 async function saveProduct(id){
   const card = document.querySelector(`.product[data-id="${id}"]`);
@@ -216,16 +316,127 @@ async function saveProduct(id){
 async function saveSettings(){
   message($("settingsMsg"),"Menyimpan...");
   try{
+    const onlinePaymentEnabled = $("online_payment_enabled").checked;
+    const paymentInstructions = $("payment_instructions").value.trim();
+    if (onlinePaymentEnabled && !paymentInstructions) {
+      throw new Error("Isi info QRIS atau transfer sebelum mengaktifkan pembayaran online.");
+    }
     await GM_DB.updateSettings({
       open_time:$("open_time").value + ":00",
       close_time:$("close_time").value + ":00",
       min_delivery:Number($("min_delivery").value || 0),
       delivery_note:$("delivery_note").value.trim(),
       address:$("address").value.trim(),
-      whatsapp:$("whatsapp").value.trim()
+      whatsapp:$("whatsapp").value.trim(),
+      online_payment_enabled:onlinePaymentEnabled,
+      payment_instructions:paymentInstructions
     });
     message($("settingsMsg"),"✅ Pengaturan toko berhasil diperbarui.");
   }catch(e){ message($("settingsMsg"),GM_DB.errorMessage?.(e) || e.message || String(e),true); }
+}
+function renderSales(sales){
+  const today = todayStore();
+  const month = today.slice(0,7);
+  const sum = rows => rows.reduce((total, row) => total + Number(row.total || 0), 0);
+  const todayRows = sales.filter(row => row.paid_date === today);
+  const monthRows = sales.filter(row => String(row.paid_date || "").startsWith(month));
+
+  $("incomeToday").textContent = rupiah(sum(todayRows));
+  $("incomeTodayCount").textContent = `${todayRows.length} transaksi`;
+  $("incomeMonth").textContent = rupiah(sum(monthRows));
+  $("incomeMonthCount").textContent = `${monthRows.length} transaksi`;
+  $("incomeAll").textContent = rupiah(sum(sales));
+  $("incomeAllCount").textContent = `${sales.length} transaksi`;
+
+  const latest = sales[0];
+  $("incomeLatest").textContent = latest ? rupiah(latest.total) : "—";
+  $("incomeLatestText").textContent = latest ? displayDate(latest.paid_date) : "Belum ada data";
+
+  $("salesList").innerHTML = sales.length ? sales.slice(0,20).map(sale => {
+    const label = sale.invoice_number || "Transaksi tanpa nomor nota";
+    const buyer = sale.buyer_name || "Nama pembeli tidak diisi";
+    const note = sale.note ? ` • ${escapeHTML(sale.note)}` : "";
+    return `<div class="sale-row">
+      <div>
+        <strong>${escapeHTML(label)}</strong>
+        <div class="sale-meta">${displayDate(sale.paid_date)} • ${escapeHTML(sale.payment_method || "Tunai")}<br>${escapeHTML(buyer)}${note}</div>
+      </div>
+      <div class="sale-right">
+        <strong>${rupiah(sale.total)}</strong>
+        <button class="btn red" type="button" onclick="deleteSale('${sale.id}')">Hapus</button>
+      </div>
+    </div>`;
+  }).join("") : '<div class="empty-sales">Belum ada transaksi yang dicatat. Setelah pembayaran diterima, isi formulir di atas.</div>';
+}
+async function loadSales(){
+  try{
+    const sales = await GM_DB.getSales();
+    renderSales(sales);
+  }catch(e){
+    $("salesList").innerHTML = '<div class="empty-sales">Laporan belum dapat dimuat. Pastikan Rules Firebase terbaru sudah di-Publish.</div>';
+    message($("salesMsg"),GM_DB.errorMessage?.(e) || e.message || String(e),true);
+  }
+}
+async function saveSale(){
+  message($("salesMsg"),"Menyimpan transaksi...");
+  try{
+    const total = Number($("sale_total").value || 0);
+    if (!Number.isFinite(total) || total <= 0) throw new Error("Isi total transaksi terlebih dahulu.");
+    const invoice = $("sale_invoice_number").value.trim() || makeAdminInvoice();
+    await GM_DB.createSale({
+      invoice_number:invoice,
+      buyer_name:$("sale_buyer_name").value.trim(),
+      payment_method:$("sale_payment_method").value,
+      paid_date:$("sale_paid_date").value || todayStore(),
+      total,
+      note:$("sale_note").value.trim()
+    });
+    $("sale_invoice_number").value = "";
+    $("sale_buyer_name").value = "";
+    $("sale_total").value = "";
+    $("sale_note").value = "";
+    $("sale_paid_date").value = todayStore();
+    message($("salesMsg"),"✅ Transaksi lunas sudah dicatat dan masuk ke laporan pendapatan.");
+    await loadSales();
+  }catch(e){ message($("salesMsg"),GM_DB.errorMessage?.(e) || e.message || String(e),true); }
+}
+async function deleteSale(id){
+  if (!confirm("Hapus transaksi ini dari laporan? Gunakan hanya jika salah catat.")) return;
+  try{
+    await GM_DB.removeSale(id);
+    message($("salesMsg"),"✅ Transaksi dihapus dari laporan.");
+    await loadSales();
+  }catch(e){ message($("salesMsg"),GM_DB.errorMessage?.(e) || e.message || String(e),true); }
+}
+
+let deferredAdminInstallPrompt = null;
+window.addEventListener("beforeinstallprompt", event => {
+  event.preventDefault();
+  deferredAdminInstallPrompt = event;
+  const hint = $("installAdminHint");
+  if (hint) hint.textContent = "Tekan tombol ini untuk memasang Admin sebagai aplikasi di HP.";
+});
+window.addEventListener("appinstalled", () => {
+  deferredAdminInstallPrompt = null;
+  const button = $("installAdminBtn");
+  const hint = $("installAdminHint");
+  if (button) button.classList.add("hidden");
+  if (hint) hint.textContent = "✅ Aplikasi Admin sudah terpasang di layar utama HP.";
+});
+async function installAdmin(){
+  if (!deferredAdminInstallPrompt) {
+    message($("loginMsg"), "Jika pemasangan belum muncul, buka menu ⋮ Chrome lalu pilih “Install app” atau “Tambahkan ke layar utama”.");
+    return;
+  }
+  deferredAdminInstallPrompt.prompt();
+  try { await deferredAdminInstallPrompt.userChoice; } catch(e) {}
+  deferredAdminInstallPrompt = null;
+}
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./service-worker.js").catch(() => {});
+  });
 }
 
 (async()=>{

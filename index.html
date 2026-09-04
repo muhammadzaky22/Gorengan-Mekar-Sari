@@ -344,6 +344,18 @@ footer.footer{background:linear-gradient(90deg,#4b2408,#24140a); color:#fff; mar
 .delivery-address-wrap.show{
   display:block;
 }
+.payment-help{
+  display:none;
+  margin:-3px 0 2px;
+  padding:10px 11px;
+  border-radius:10px;
+  background:#edf8ef;
+  border:1px solid #ccefd7;
+  color:#196b36;
+  font-size:.84rem;
+  line-height:1.45;
+}
+.payment-help.show{display:block}
 
 
 .open-status{
@@ -421,6 +433,27 @@ footer.footer{background:linear-gradient(90deg,#4b2408,#24140a); color:#fff; mar
   text-align:center;
   line-height:1.4;
 }
+.receipt-overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:260;
+  background:rgba(32,20,10,.56);
+  padding:18px;
+  overflow:auto;
+  align-items:center;
+  justify-content:center;
+}
+.receipt-overlay.show{display:flex}
+.receipt-modal{
+  width:min(430px,100%);
+  max-height:calc(100vh - 36px);
+  overflow:auto;
+  background:#fff;
+  border-radius:18px;
+  box-shadow:0 18px 48px rgba(0,0,0,.25);
+}
+.receipt-paper{padding:21px 20px 16px;color:#302418}.receipt-brand{text-align:center;border-bottom:2px dashed #e4d8c6;padding-bottom:13px}.receipt-brand h2{margin:0;font-size:1.35rem}.receipt-brand p{margin:4px 0 0;color:#74685a;font-size:.88rem}.receipt-number{text-align:center;font-weight:900;margin:12px 0 4px}.receipt-date{text-align:center;color:#74685a;font-size:.82rem}.receipt-status{display:inline-block;margin:11px 0;padding:6px 9px;border-radius:999px;background:#fff2c9;color:#7b5200;font-size:.8rem;font-weight:900}.receipt-info{font-size:.9rem;line-height:1.55;border-top:1px dashed #e4d8c6;padding-top:11px}.receipt-items{margin-top:12px;border-top:1px dashed #e4d8c6;border-bottom:1px dashed #e4d8c6;padding:8px 0}.receipt-item{display:grid;grid-template-columns:1fr auto;gap:8px;padding:6px 0;font-size:.9rem}.receipt-item small{display:block;color:#74685a;margin-top:2px}.receipt-total{display:flex;justify-content:space-between;gap:10px;font-size:1.15rem;font-weight:900;margin-top:13px}.receipt-payment{margin-top:14px;padding:11px;border-radius:10px;background:#edf8ef;color:#196b36;font-size:.86rem;line-height:1.45}.receipt-footer{margin-top:14px;color:#74685a;font-size:.8rem;line-height:1.45;text-align:center}.receipt-actions{display:flex;gap:8px;padding:0 20px 20px}.receipt-actions button{flex:1;border:0;border-radius:10px;padding:11px;font:inherit;font-weight:900;cursor:pointer}.receipt-print{background:#ffd42c;color:#2d1a0d}.receipt-share{background:#22b14c;color:#fff}.receipt-close{background:#f5f1eb;color:#44372c}
 .promo-mini{
   display:inline-block;
   margin-left:7px;
@@ -431,6 +464,13 @@ footer.footer{background:linear-gradient(90deg,#4b2408,#24140a); color:#fff; mar
   font-size:.7rem;
   font-weight:900;
   vertical-align:middle;
+}
+@media print{
+  body{background:#fff!important}
+  body > *:not(#receiptOverlay){display:none!important}
+  #receiptOverlay{display:block!important;position:static!important;background:#fff!important;padding:0!important;overflow:visible!important}
+  .receipt-modal{width:100%!important;max-height:none!important;overflow:visible!important;box-shadow:none!important;border-radius:0!important}
+  .receipt-actions{display:none!important}
 }
 
 
@@ -766,11 +806,18 @@ footer.footer{background:linear-gradient(90deg,#4b2408,#24140a); color:#fff; mar
           <label class="checkout-label" for="deliveryAddressDesktop">Alamat Pengantaran</label>
           <input class="checkout-input" id="deliveryAddressDesktop" type="text" placeholder="Masukkan alamat lengkap">
         </div>
+
+        <label class="checkout-label" for="paymentMethodDesktop">Metode Pembayaran</label>
+        <select class="checkout-select" id="paymentMethodDesktop" onchange="updatePaymentInfo('desktop')">
+          <option value="Bayar saat ambil/diantar">Bayar saat ambil / diantar</option>
+          <option value="Online (QRIS / Transfer)" disabled hidden>Online (QRIS / Transfer)</option>
+        </select>
+        <div class="payment-help" id="paymentHelpDesktop" aria-live="polite"></div>
       </div>
 
       <textarea class="note" id="noteDesktop" placeholder="Tulis catatan pesanan (opsional)..."></textarea>
-      <button class="checkout-btn" id="checkoutDesktop" onclick="checkoutWA('desktop')">🟢 Pesan via WhatsApp<br>0895-1234-0428</button>
-      <div class="cart-caption">Pesanan akan dikirim ke WhatsApp kami dengan otomatis.</div>
+      <button class="checkout-btn" id="checkoutDesktop" onclick="checkoutWA('desktop')">🧾 Pesan &amp; Buat Nota<br>via WhatsApp</button>
+      <div class="cart-caption">Nota digital muncul setelah tombol ditekan. Pesanan dikonfirmasi melalui WhatsApp.</div>
 
       <div class="cart-actions-extra">
         <button class="cart-secondary-btn" onclick="clearCart()">Kosongkan Keranjang</button>
@@ -844,15 +891,33 @@ footer.footer{background:linear-gradient(90deg,#4b2408,#24140a); color:#fff; mar
         <label class="checkout-label" for="deliveryAddressMobile">Alamat Pengantaran</label>
         <input class="checkout-input" id="deliveryAddressMobile" type="text" placeholder="Masukkan alamat lengkap">
       </div>
+
+      <label class="checkout-label" for="paymentMethodMobile">Metode Pembayaran</label>
+      <select class="checkout-select" id="paymentMethodMobile" onchange="updatePaymentInfo('mobile')">
+        <option value="Bayar saat ambil/diantar">Bayar saat ambil / diantar</option>
+        <option value="Online (QRIS / Transfer)" disabled hidden>Online (QRIS / Transfer)</option>
+      </select>
+      <div class="payment-help" id="paymentHelpMobile" aria-live="polite"></div>
     </div>
 
     <textarea class="note" id="noteMobile" placeholder="Tulis catatan pesanan (opsional)..."></textarea>
-    <button class="checkout-btn" id="checkoutMobile" onclick="checkoutWA('mobile')">🟢 Pesan via WhatsApp<br>0895-1234-0428</button>
-    <div class="cart-caption">Pesanan akan dikirim ke WhatsApp kami dengan otomatis.</div>
+    <button class="checkout-btn" id="checkoutMobile" onclick="checkoutWA('mobile')">🧾 Pesan &amp; Buat Nota<br>via WhatsApp</button>
+    <div class="cart-caption">Nota digital muncul setelah tombol ditekan. Pesanan dikonfirmasi melalui WhatsApp.</div>
     <div class="cart-actions-extra">
       <button class="cart-secondary-btn" onclick="clearCart()">Kosongkan Keranjang</button>
     </div>
     <div class="cart-persist-note">Keranjang tetap tersimpan setelah checkout, jadi kamu bisa pesan lagi tanpa memilih ulang.</div>
+  </div>
+</div>
+
+<div class="receipt-overlay" id="receiptOverlay" role="dialog" aria-modal="true" aria-labelledby="receiptTitle">
+  <div class="receipt-modal">
+    <div id="receiptContent"></div>
+    <div class="receipt-actions">
+      <button class="receipt-print" type="button" onclick="printReceipt()">🖨 Cetak</button>
+      <button class="receipt-share" type="button" onclick="shareReceipt()">↗ Bagikan</button>
+      <button class="receipt-close" type="button" onclick="closeReceipt()">Tutup</button>
+    </div>
   </div>
 </div>
 
@@ -866,6 +931,9 @@ footer.footer{background:linear-gradient(90deg,#4b2408,#24140a); color:#fff; mar
 let WHATSAPP = "6289512340428";
 
 let MIN_DELIVERY = 20000;
+let ONLINE_PAYMENT_ENABLED = false;
+let PAYMENT_INSTRUCTIONS = "";
+let LAST_RECEIPT = null;
 const LIVE_PRODUCTS = {};
 const STORE_SETTINGS = {
   openTime: "08:00",
@@ -945,8 +1013,8 @@ function updateOpenStatus() {
     const btn = document.getElementById(id);
     if (!btn) return;
     btn.innerHTML = STORE_IS_OPEN
-      ? `🟢 Pesan via WhatsApp<br>${formatPhone(WHATSAPP)}`
-      : `🕒 Pre-order via WhatsApp<br>${formatPhone(WHATSAPP)}`;
+      ? "🧾 Pesan &amp; Buat Nota<br>via WhatsApp"
+      : "🧾 Pre-order &amp; Buat Nota<br>via WhatsApp";
   });
 }
 
@@ -964,6 +1032,7 @@ function saveCheckoutFields() {
     buyerPhone: document.getElementById("buyerPhoneDesktop")?.value || "",
     deliveryType: document.getElementById("deliveryTypeDesktop")?.value || "Ambil Sendiri",
     deliveryAddress: document.getElementById("deliveryAddressDesktop")?.value || "",
+    paymentMethod: document.getElementById("paymentMethodDesktop")?.value || "Bayar saat ambil/diantar",
     note: document.getElementById("noteDesktop")?.value || ""
   };
   localStorage.setItem("gorengan_mekarsari_checkout", JSON.stringify(data));
@@ -978,11 +1047,13 @@ function loadCheckoutFields() {
       const p = document.getElementById("buyerPhone" + suffix);
       const t = document.getElementById("deliveryType" + suffix);
       const a = document.getElementById("deliveryAddress" + suffix);
+      const payment = document.getElementById("paymentMethod" + suffix);
       const note = document.getElementById("note" + suffix);
       if (n) n.value = data.buyerName || "";
       if (p) p.value = data.buyerPhone || "";
       if (t) t.value = data.deliveryType || "Ambil Sendiri";
       if (a) a.value = data.deliveryAddress || "";
+      if (payment) payment.value = data.paymentMethod || "Bayar saat ambil/diantar";
       if (note) note.value = data.note || "";
     });
   } catch(e) {}
@@ -1106,6 +1177,142 @@ function toggleDeliveryAddress(mode) {
   }
 }
 
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>'"]/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[char]));
+}
+function escapeMultiline(value) {
+  return escapeHTML(value).replace(/\n/g, "<br>");
+}
+function storeDateCode(date = new Date()) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: STORE_SETTINGS.timezone || "Asia/Makassar",
+    year: "numeric", month: "2-digit", day: "2-digit"
+  }).formatToParts(date);
+  const get = type => parts.find(part => part.type === type)?.value;
+  return `${get("year")}${get("month")}${get("day")}`;
+}
+function createReceiptNumber() {
+  return `GM-${storeDateCode()}-${String(Date.now()).slice(-6)}`;
+}
+function displayReceiptDate(value) {
+  return new Intl.DateTimeFormat("id-ID", {
+    timeZone: STORE_SETTINGS.timezone || "Asia/Makassar",
+    day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit"
+  }).format(new Date(value)) + " WITA";
+}
+function onlinePaymentSelected(value) {
+  return value === "Online (QRIS / Transfer)";
+}
+function updatePaymentInfo(mode) {
+  const isMobile = mode === "mobile";
+  const select = document.getElementById(isMobile ? "paymentMethodMobile" : "paymentMethodDesktop");
+  const help = document.getElementById(isMobile ? "paymentHelpMobile" : "paymentHelpDesktop");
+  if (!select || !help) return;
+  if (onlinePaymentSelected(select.value) && ONLINE_PAYMENT_ENABLED) {
+    const info = PAYMENT_INSTRUCTIONS || "Setelah pesan, tunggu petunjuk QRIS atau transfer dari admin melalui WhatsApp.";
+    help.innerHTML = `<strong>💳 Pembayaran online</strong><br>${escapeMultiline(info)}`;
+    help.classList.add("show");
+  } else {
+    help.innerHTML = "";
+    help.classList.remove("show");
+  }
+}
+function syncPaymentOptions() {
+  ["Desktop", "Mobile"].forEach(suffix => {
+    const select = document.getElementById("paymentMethod" + suffix);
+    const option = select?.querySelector('option[value="Online (QRIS / Transfer)"]');
+    if (!select || !option) return;
+    option.disabled = !ONLINE_PAYMENT_ENABLED;
+    option.hidden = !ONLINE_PAYMENT_ENABLED;
+    if (!ONLINE_PAYMENT_ENABLED && onlinePaymentSelected(select.value)) {
+      select.value = "Bayar saat ambil/diantar";
+    }
+    updatePaymentInfo(suffix.toLowerCase());
+  });
+}
+function receiptText(order) {
+  const lines = [
+    "GORENGAN MEKARSARI",
+    "NOTA PESANAN",
+    `No. Nota: ${order.receiptNumber}`,
+    `Tanggal: ${displayReceiptDate(order.createdAt)}`,
+    `Status: ${order.orderStatus} - menunggu konfirmasi toko`,
+    "",
+    `Nama: ${order.buyerName}`,
+    order.buyerPhone ? `No. HP: ${order.buyerPhone}` : "",
+    `Metode Pesanan: ${order.deliveryType}`,
+    order.deliveryType === "Antar" ? `Alamat: ${order.deliveryAddress}` : "",
+    `Pembayaran: ${order.paymentMethod}`,
+    "",
+    "PESANAN:"
+  ].filter(Boolean);
+  order.items.forEach((item, index) => {
+    lines.push(`${index + 1}. ${item.name} - ${item.qty} x ${formatRp(item.price)} = ${formatRp(item.price * item.qty)}`);
+  });
+  lines.push("", `TOTAL: ${formatRp(order.total)}`);
+  if (order.note) lines.push(`Catatan: ${order.note}`);
+  if (order.paymentInstructions) lines.push("", `Info pembayaran: ${order.paymentInstructions}`);
+  lines.push("", "Nota ini belum bukti pembayaran. Pesanan diproses setelah dikonfirmasi toko.");
+  return lines.join("\n");
+}
+function showReceipt(order) {
+  LAST_RECEIPT = order;
+  const status = order.orderStatus === "PRE-ORDER" ? "PRE-ORDER • menunggu konfirmasi" : "MENUNGGU KONFIRMASI";
+  const delivery = order.deliveryType === "Antar"
+    ? `<div><strong>Alamat:</strong> ${escapeHTML(order.deliveryAddress)}</div>`
+    : "";
+  const phone = order.buyerPhone ? `<div><strong>No. HP:</strong> ${escapeHTML(order.buyerPhone)}</div>` : "";
+  const notes = order.note ? `<div style="margin-top:8px"><strong>Catatan:</strong> ${escapeHTML(order.note)}</div>` : "";
+  const paymentInfo = order.paymentInstructions
+    ? `<div class="receipt-payment"><strong>💳 Info pembayaran online</strong><br>${escapeMultiline(order.paymentInstructions)}</div>`
+    : "";
+  const items = order.items.map(item => `<div class="receipt-item"><div><strong>${escapeHTML(item.name)}</strong><small>${item.qty} x ${formatRp(item.price)}</small></div><strong>${formatRp(item.price * item.qty)}</strong></div>`).join("");
+
+  document.getElementById("receiptContent").innerHTML = `<div class="receipt-paper">
+    <div class="receipt-brand"><h2 id="receiptTitle">Gorengan Mekarsari</h2><p>Hangat • Gurih • Bersahabat</p></div>
+    <div class="receipt-number">NOTA #${escapeHTML(order.receiptNumber)}</div>
+    <div class="receipt-date">${escapeHTML(displayReceiptDate(order.createdAt))}</div>
+    <div style="text-align:center"><span class="receipt-status">${status}</span></div>
+    <div class="receipt-info">
+      <div><strong>Nama:</strong> ${escapeHTML(order.buyerName)}</div>
+      ${phone}
+      <div><strong>Pesanan:</strong> ${escapeHTML(order.deliveryType)}</div>
+      ${delivery}
+      <div><strong>Pembayaran:</strong> ${escapeHTML(order.paymentMethod)}</div>
+      ${notes}
+    </div>
+    <div class="receipt-items">${items}</div>
+    <div class="receipt-total"><span>Total</span><span>${formatRp(order.total)}</span></div>
+    ${paymentInfo}
+    <div class="receipt-footer">Nota ini belum menjadi bukti pembayaran. Pesanan diproses setelah toko mengonfirmasi melalui WhatsApp.</div>
+  </div>`;
+  document.getElementById("receiptOverlay").classList.add("show");
+}
+function closeReceipt() {
+  document.getElementById("receiptOverlay").classList.remove("show");
+}
+function printReceipt() {
+  window.print();
+}
+async function shareReceipt() {
+  if (!LAST_RECEIPT) return;
+  const text = receiptText(LAST_RECEIPT);
+  try {
+    if (navigator.share) {
+      await navigator.share({ title: `Nota ${LAST_RECEIPT.receiptNumber}`, text });
+      return;
+    }
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      alert("Nota sudah disalin. Tempelkan ke WhatsApp atau catatan HP.");
+      return;
+    }
+    prompt("Salin nota ini:", text);
+  } catch (error) {
+    if (error?.name !== "AbortError") alert("Nota belum dapat dibagikan. Coba tombol Cetak.");
+  }
+}
+
 function checkoutWA(mode) {
   if (!cart.length) {
     alert("Keranjang masih kosong.");
@@ -1117,6 +1324,7 @@ function checkoutWA(mode) {
   const buyerPhone = document.getElementById(isMobile ? "buyerPhoneMobile" : "buyerPhoneDesktop").value.trim();
   const deliveryType = document.getElementById(isMobile ? "deliveryTypeMobile" : "deliveryTypeDesktop").value;
   const deliveryAddress = document.getElementById(isMobile ? "deliveryAddressMobile" : "deliveryAddressDesktop").value.trim();
+  const paymentMethod = document.getElementById(isMobile ? "paymentMethodMobile" : "paymentMethodDesktop").value;
   const note = document.getElementById(isMobile ? "noteMobile" : "noteDesktop").value.trim();
 
   if (!buyerName) {
@@ -1134,33 +1342,54 @@ function checkoutWA(mode) {
     return;
   }
 
+  if (onlinePaymentSelected(paymentMethod) && !ONLINE_PAYMENT_ENABLED) {
+    alert("Pembayaran online belum diaktifkan oleh toko.");
+    return;
+  }
+
   const orderStatus = STORE_IS_OPEN ? "Pesanan hari ini" : "PRE-ORDER";
-  let text = STORE_IS_OPEN
-    ? "Halo Gorengan Mekarsari, saya mau pesan:%0A%0A"
-    : "Halo Gorengan Mekarsari, saya mau *PRE-ORDER*:%0A%0A";
-  text += "*Status:* " + encodeURIComponent(orderStatus) + "%0A";
-  text += "*Nama:* " + encodeURIComponent(buyerName) + "%0A";
-  if (buyerPhone) text += "*No. HP:* " + encodeURIComponent(buyerPhone) + "%0A";
-  text += "*Metode:* " + encodeURIComponent(deliveryType) + "%0A";
-  if (deliveryType === "Antar") {
-    text += "*Alamat:* " + encodeURIComponent(deliveryAddress) + "%0A";
-    text += "*Ongkir:* " + encodeURIComponent(STORE_SETTINGS.deliveryNote) + "%0A";
-  }
-  text += "%0A";
+  const order = {
+    receiptNumber: createReceiptNumber(),
+    createdAt: new Date().toISOString(),
+    orderStatus,
+    buyerName,
+    buyerPhone,
+    deliveryType,
+    deliveryAddress,
+    paymentMethod,
+    paymentInstructions: onlinePaymentSelected(paymentMethod) ? PAYMENT_INSTRUCTIONS : "",
+    note,
+    items: cart.map(item => ({ ...item })),
+    total: totalPrice()
+  };
+  const lines = [
+    STORE_IS_OPEN ? "Halo Gorengan Mekarsari, saya mau pesan:" : "Halo Gorengan Mekarsari, saya mau PRE-ORDER:",
+    "",
+    `*No. Nota:* ${order.receiptNumber}`,
+    `*Status:* ${orderStatus}`,
+    `*Nama:* ${buyerName}`,
+    buyerPhone ? `*No. HP:* ${buyerPhone}` : "",
+    `*Metode:* ${deliveryType}`,
+    deliveryType === "Antar" ? `*Alamat:* ${deliveryAddress}` : "",
+    deliveryType === "Antar" ? `*Ongkir:* ${STORE_SETTINGS.deliveryNote}` : "",
+    `*Pembayaran:* ${paymentMethod}`,
+    ""
+  ].filter(Boolean);
 
-  cart.forEach((item, i) => {
-    text += `${i+1}. ${item.name} - ${item.qty} x ${formatRp(item.price)} = ${formatRp(item.price * item.qty)}%0A`;
+  order.items.forEach((item, i) => {
+    lines.push(`${i+1}. ${item.name} - ${item.qty} x ${formatRp(item.price)} = ${formatRp(item.price * item.qty)}`);
   });
-
-  text += `%0A*Total: ${formatRp(totalPrice())}*`;
-  if (note) text += `%0A%0A*Catatan:* ` + encodeURIComponent(note);
+  lines.push("", `*Total: ${formatRp(order.total)}*`);
+  if (note) lines.push("", `*Catatan:* ${note}`);
+  if (order.paymentInstructions) lines.push("", `*Info pembayaran:* ${order.paymentInstructions}`);
   if (!STORE_IS_OPEN) {
-    text += `%0A%0A*Catatan Toko:* Saat ini toko sedang tutup. Pesanan dicatat sebagai pre-order dan dikonfirmasi melalui WhatsApp.`;
+    lines.push("", "*Catatan Toko:* Saat ini toko sedang tutup. Pesanan dicatat sebagai pre-order dan dikonfirmasi melalui WhatsApp.");
   }
-  text += `%0A%0ATerima kasih.`;
+  lines.push("", "Terima kasih.");
 
   saveCheckoutFields();
-  window.open(`https://wa.me/${WHATSAPP}?text=${text}`, "_blank");
+  window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(lines.join("\n"))}`, "_blank");
+  showReceipt(order);
 }
 
 document.querySelectorAll(".filter-btn").forEach(btn => {
@@ -1250,6 +1479,8 @@ async function syncFromDatabase() {
       STORE_SETTINGS.timezone = settings.timezone || "Asia/Makassar";
       STORE_SETTINGS.deliveryNote = settings.delivery_note || "Ongkir dikonfirmasi melalui WhatsApp";
       MIN_DELIVERY = Number(settings.min_delivery ?? 20000);
+      ONLINE_PAYMENT_ENABLED = Boolean(settings.online_payment_enabled);
+      PAYMENT_INSTRUCTIONS = String(settings.payment_instructions || "").trim();
 
       const hours = document.getElementById("hoursText");
       if (hours) hours.textContent = `${STORE_SETTINGS.openTime} - ${STORE_SETTINGS.closeTime} WITA`;
@@ -1259,6 +1490,7 @@ async function syncFromDatabase() {
 
       if (settings.whatsapp) WHATSAPP = normalizeWhatsApp(settings.whatsapp);
       syncWhatsAppLinks();
+      syncPaymentOptions();
     }
 
     applyStockStatus();
@@ -1275,6 +1507,7 @@ function bindCheckoutPersistence() {
     ["buyerPhoneDesktop","buyerPhoneMobile"],
     ["deliveryTypeDesktop","deliveryTypeMobile"],
     ["deliveryAddressDesktop","deliveryAddressMobile"],
+    ["paymentMethodDesktop","paymentMethodMobile"],
     ["noteDesktop","noteMobile"]
   ];
 
@@ -1289,6 +1522,10 @@ function bindCheckoutPersistence() {
         toggleDeliveryAddress("desktop");
         toggleDeliveryAddress("mobile");
       }
+      if (aId.includes("paymentMethod")) {
+        updatePaymentInfo("desktop");
+        updatePaymentInfo("mobile");
+      }
       saveCheckoutFields();
     };
     const syncB = () => {
@@ -1296,6 +1533,10 @@ function bindCheckoutPersistence() {
       if (bId.includes("deliveryType")) {
         toggleDeliveryAddress("desktop");
         toggleDeliveryAddress("mobile");
+      }
+      if (bId.includes("paymentMethod")) {
+        updatePaymentInfo("desktop");
+        updatePaymentInfo("mobile");
       }
       saveCheckoutFields();
     };
@@ -1311,10 +1552,14 @@ function toggleMobileCart() {
 document.getElementById("mobileCartOverlay").addEventListener("click", (e) => {
   if (e.target.id === "mobileCartOverlay") toggleMobileCart();
 });
+document.getElementById("receiptOverlay").addEventListener("click", (e) => {
+  if (e.target.id === "receiptOverlay") closeReceipt();
+});
 
 loadCheckoutFields();
 toggleDeliveryAddress('desktop');
 toggleDeliveryAddress('mobile');
+syncPaymentOptions();
 bindCheckoutPersistence();
 correctSwappedMenuImages();
 applyStockStatus();
