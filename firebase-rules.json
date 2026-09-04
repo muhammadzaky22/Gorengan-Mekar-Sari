@@ -12,7 +12,17 @@
         ".write": "auth != null && auth.uid === 'YZ164ihHK1RQmNVVSi4O5bC6JNB3'"
       }
     },
+    "product_costs": {
+      ".read": "auth != null && auth.uid === 'YZ164ihHK1RQmNVVSi4O5bC6JNB3'",
+      ".write": "auth != null && auth.uid === 'YZ164ihHK1RQmNVVSi4O5bC6JNB3'"
+    },
     "sales": {
+      ".read": "auth != null && auth.uid === 'YZ164ihHK1RQmNVVSi4O5bC6JNB3'",
+      "$sale": {
+        ".write": "auth != null && auth.uid === 'YZ164ihHK1RQmNVVSi4O5bC6JNB3' || (!data.exists() && newData.hasChildren(['buyer_name','items','total','status','created_at','source']) && newData.child('source').val() === 'website' && newData.child('status').val() === 'pending' && newData.child('total').isNumber() && newData.child('total').val() > 0 && newData.child('total').val() <= 10000000)"
+      }
+    },
+    "expenses": {
       ".read": "auth != null && auth.uid === 'YZ164ihHK1RQmNVVSi4O5bC6JNB3'",
       ".write": "auth != null && auth.uid === 'YZ164ihHK1RQmNVVSi4O5bC6JNB3'"
     }

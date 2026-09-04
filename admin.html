@@ -1,451 +1,154 @@
 <!doctype html>
 <html lang="id">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Admin Gorengan Mekarsari</title>
-<meta name="theme-color" content="#2d1a0d">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Admin Gorengan">
-<link rel="manifest" href="admin-manifest.json">
-<link rel="apple-touch-icon" href="icon-192.png">
-<style>
-:root{--bg:#fff8ef;--card:#fff;--line:#eadfce;--text:#302418;--muted:#74685a;--yellow:#ffd42c;--green:#22b14c;--red:#d63b32;--shadow:0 14px 30px rgba(48,28,10,.08)}
-*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
-.wrap{width:min(980px,calc(100% - 24px));margin:24px auto 70px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}.top h1{margin:0}
-.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow);margin-bottom:16px}
-input,select,textarea{width:100%;padding:12px;border:1px solid #ddd3c4;border-radius:10px;font:inherit;background:#fff}
-textarea{min-height:82px;resize:vertical}
-label{display:block;font-weight:800;margin:10px 0 6px}.btn{border:0;border-radius:11px;padding:12px 15px;font-weight:900;cursor:pointer}.primary{background:var(--yellow);color:#2d1a0d}.green{background:var(--green);color:#fff}.ghost{background:#f5f1eb;color:#44372c}.red{background:#fff0ef;color:#ae2c26}
-.login{max-width:460px;margin:70px auto}.login h1{margin-top:0}.hint{color:var(--muted);line-height:1.55;font-size:.92rem}.msg{margin-top:12px;padding:10px 12px;border-radius:10px;background:#f7f2e8}.error{background:#fff0ef;color:#a92d26}
-.install-admin{width:100%;margin-top:9px;background:#2d1a0d;color:#fff}.install-hint{text-align:center;margin-top:9px;color:var(--muted);font-size:.8rem;line-height:1.4}
-.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}.status{font-size:.9rem;color:var(--muted)}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.product{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff}.product-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.product h3{margin:0}.switch{display:flex;align-items:center;gap:8px;font-weight:800}.switch input{width:22px;height:22px}.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.save{width:100%;margin-top:12px}
-.settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.full{grid-column:1/-1}
-.income-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:15px 0}.income-box{padding:14px;border:1px solid var(--line);border-radius:13px;background:#fffdf9}.income-box small{display:block;color:var(--muted);font-weight:700}.income-box strong{display:block;margin-top:5px;font-size:1.15rem}.income-box span{display:block;margin-top:4px;color:var(--muted);font-size:.82rem}.sale-form{border-top:1px solid var(--line);padding-top:14px;margin-top:14px}.sale-form h3{margin:0 0 5px}.sale-list{display:flex;flex-direction:column;gap:9px;margin-top:12px}.sale-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border:1px solid var(--line);border-radius:13px;background:#fff}.sale-row strong{display:block}.sale-meta{color:var(--muted);font-size:.86rem;line-height:1.45;margin-top:3px}.sale-right{text-align:right;flex:none}.sale-right strong{color:#16733a}.sale-right button{margin-top:7px;padding:7px 9px;font-size:.8rem}.empty-sales{padding:17px;border:1px dashed #d8c9b6;border-radius:12px;color:var(--muted);text-align:center}
-.hidden{display:none!important}
-@media(max-width:650px){.grid,.settings-grid,.row2,.income-summary{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}.top .actions{width:100%;display:flex;gap:8px}.top .actions button{flex:1}.sale-row{align-items:flex-start;flex-direction:column}.sale-right{text-align:left;width:100%}}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Admin Gorengan Mekarsari</title>
+  <meta name="theme-color" content="#2d1a0d">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Admin Gorengan">
+  <link rel="manifest" href="admin-manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="admin-app.css">
 </head>
 <body>
-<div class="wrap">
-  <section id="loginView" class="login card">
-    <h1>🔐 Admin Gorengan</h1>
-    <p class="hint">Login untuk mengubah stok, harga, badge, pembayaran online, serta mencatat pendapatan. Perubahan langsung terbaca di website pelanggan tanpa upload GitHub lagi.</p>
-    <label>Email</label>
-    <input id="email" type="email" autocomplete="username" placeholder="email admin">
-    <label>Password</label>
-    <input id="password" type="password" autocomplete="current-password" placeholder="password">
-    <button class="btn green" style="width:100%;margin-top:14px" onclick="login()">Masuk</button>
-    <button class="btn ghost" type="button" style="width:100%;margin-top:9px" onclick="resetPassword()">Lupa password?</button>
-    <button class="btn install-admin" id="installAdminBtn" type="button" onclick="installAdmin()">📲 Install Aplikasi Admin</button>
-    <div class="install-hint" id="installAdminHint">Setelah di-install, Admin punya ikon sendiri di layar utama HP.</div>
-    <div id="loginMsg"></div>
-  </section>
+  <main class="wrap">
+    <section id="loginView" class="login card">
+      <h1>🔐 Admin Gorengan</h1>
+      <p class="hint">Atur menu, foto, stok, harga, pesanan, pengeluaran, dan laporan dari satu halaman. Perubahan toko langsung tersimpan di Firebase.</p>
+      <label for="email">Email</label>
+      <input id="email" type="email" autocomplete="username" placeholder="email admin">
+      <label for="password">Password</label>
+      <input id="password" type="password" autocomplete="current-password" placeholder="password">
+      <button class="btn green full-btn" id="loginBtn" type="button">Masuk</button>
+      <button class="btn ghost full-btn" id="resetBtn" type="button">Lupa password?</button>
+      <button class="btn install-admin" id="installAdminBtn" type="button">📲 Install Aplikasi Admin</button>
+      <div class="install-hint" id="installAdminHint">Setelah di-install, Admin punya ikon sendiri di layar utama HP.</div>
+      <div id="loginMsg"></div>
+    </section>
 
-  <section id="adminView" class="hidden">
-    <div class="top">
-      <div>
-        <h1>⚙️ Admin Gorengan Mekarsari</h1>
-        <div class="status" id="accountInfo"></div>
-      </div>
-      <div class="actions">
-        <a class="btn ghost" href="index.html" style="display:inline-block;text-align:center">Lihat Toko</a>
-        <button class="btn red" onclick="logout()">Keluar</button>
-      </div>
-    </div>
+    <section id="adminView" class="hidden">
+      <header class="top">
+        <div>
+          <h1>⚙️ Admin Gorengan Mekarsari</h1>
+          <div class="status" id="accountInfo"></div>
+        </div>
+        <div class="actions">
+          <a class="btn ghost" href="index.html">Lihat Toko</a>
+          <button class="btn ghost" id="refreshBtn" type="button">↻ Muat ulang</button>
+          <button class="btn red" id="logoutBtn" type="button">Keluar</button>
+        </div>
+      </header>
 
-    <div class="card">
-      <div class="toolbar">
-        <div>
-          <strong>Produk</strong>
-          <div class="status">Matikan “Tersedia” bila stok habis, lalu Simpan. Website langsung ikut berubah.</div>
-        </div>
-        <button class="btn ghost" onclick="loadAll()">↻ Refresh</button>
-      </div>
-      <div id="products" class="grid" style="margin-top:14px"></div>
-    </div>
+      <div id="adminMsg"></div>
 
-    <div class="card">
-      <h2 style="margin-top:0">Pengaturan Toko</h2>
-      <div class="settings-grid">
-        <div>
-          <label>Jam buka</label>
-          <input id="open_time" type="time">
-        </div>
-        <div>
-          <label>Jam tutup</label>
-          <input id="close_time" type="time">
-        </div>
-        <div>
-          <label>Minimum pesanan antar</label>
-          <input id="min_delivery" type="number" min="0" step="1000">
-        </div>
-        <div>
-          <label>WhatsApp</label>
-          <input id="whatsapp" type="text">
-        </div>
-        <div class="full">
-          <label class="switch">
-            <input id="online_payment_enabled" type="checkbox">
-            <span>Tampilkan pilihan pembayaran online (QRIS / transfer)</span>
-          </label>
-        </div>
-        <div class="full">
-          <label>Info pembayaran online</label>
-          <textarea id="payment_instructions" placeholder="Contoh: Scan QRIS yang dikirim admin, atau transfer ke BCA 123456789 a/n ..."></textarea>
-          <div class="status">Teks ini tampil untuk pelanggan yang memilih pembayaran online; pembayaran tetap dikonfirmasi lewat WhatsApp.</div>
-        </div>
-        <div class="full">
-          <label>Catatan ongkir</label>
-          <input id="delivery_note" type="text">
-        </div>
-        <div class="full">
-          <label>Alamat</label>
-          <input id="address" type="text">
-        </div>
-      </div>
-      <button class="btn primary save" onclick="saveSettings()">Simpan Pengaturan Toko</button>
-      <div id="settingsMsg"></div>
-    </div>
-
-    <div class="card">
-      <div class="toolbar">
-        <div>
-          <h2 style="margin:0">📊 Laporan Pendapatan</h2>
-          <div class="status">Catat hanya transaksi yang pembayarannya sudah benar-benar diterima.</div>
-        </div>
-        <button class="btn ghost" onclick="loadSales()">↻ Refresh Laporan</button>
-      </div>
-
-      <div class="income-summary">
-        <div class="income-box"><small>Hari ini</small><strong id="incomeToday">Rp 0</strong><span id="incomeTodayCount">0 transaksi</span></div>
-        <div class="income-box"><small>Bulan ini</small><strong id="incomeMonth">Rp 0</strong><span id="incomeMonthCount">0 transaksi</span></div>
-        <div class="income-box"><small>Semua pendapatan</small><strong id="incomeAll">Rp 0</strong><span id="incomeAllCount">0 transaksi</span></div>
-        <div class="income-box"><small>Transaksi terakhir</small><strong id="incomeLatest">—</strong><span id="incomeLatestText">Belum ada data</span></div>
-      </div>
-
-      <div class="sale-form">
-        <h3>Catat Transaksi Lunas</h3>
-        <div class="status">Salin nomor nota dari pesanan WhatsApp bila ada. Nomor juga boleh dikosongkan.</div>
-        <div class="settings-grid">
+      <section class="card">
+        <div class="toolbar">
           <div>
-            <label>Tanggal pembayaran</label>
-            <input id="sale_paid_date" type="date">
+            <h2>📊 Ringkasan Toko</h2>
+            <div class="status">Laba = pemasukan yang sudah dibayar − modal menu − pengeluaran.</div>
           </div>
+          <div class="actions"><button class="btn ghost" id="enableNotificationsBtn" type="button">🔔 Notifikasi pesanan</button><button class="btn blue" id="exportBtn" type="button">⬇ Export Excel (CSV)</button></div>
+        </div>
+        <div class="summary">
+          <div class="summary-box"><small>Pemasukan hari ini</small><strong id="incomeToday">Rp 0</strong><span id="incomeTodayInfo">0 pesanan dibayar</span></div>
+          <div class="summary-box"><small>Laba hari ini</small><strong id="profitToday">Rp 0</strong><span id="profitTodayInfo">Setelah modal &amp; pengeluaran</span></div>
+          <div class="summary-box"><small>Pemasukan bulan ini</small><strong id="incomeMonth">Rp 0</strong><span id="incomeMonthInfo">0 pesanan dibayar</span></div>
+          <div class="summary-box"><small>Laba bersih bulan ini</small><strong id="profitMonth">Rp 0</strong><span id="profitMonthInfo">Setelah modal &amp; pengeluaran</span></div>
+          <div class="summary-box"><small>Pesanan menunggu</small><strong id="pendingCount">0</strong><span id="pendingInfo">Belum dibayar / diproses</span></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="toolbar">
           <div>
-            <label>Metode pembayaran</label>
-            <select id="sale_payment_method">
-              <option>Tunai</option>
-              <option>QRIS</option>
-              <option>Transfer Bank</option>
-              <option>E-Wallet</option>
-            </select>
-          </div>
-          <div>
-            <label>Nama pembeli <span class="status">(opsional)</span></label>
-            <input id="sale_buyer_name" type="text" placeholder="Contoh: Zaky">
-          </div>
-          <div>
-            <label>Nomor nota <span class="status">(opsional)</span></label>
-            <input id="sale_invoice_number" type="text" placeholder="Contoh: GM-20260904-123456">
-          </div>
-          <div class="full">
-            <label>Total transaksi</label>
-            <input id="sale_total" type="number" min="1" step="500" inputmode="numeric" placeholder="Contoh: 25000">
-          </div>
-          <div class="full">
-            <label>Catatan <span class="status">(opsional)</span></label>
-            <textarea id="sale_note" placeholder="Contoh: Pesanan antar, ongkir dibayar terpisah"></textarea>
+            <h2>🍽️ Kelola Menu</h2>
+            <div class="status">Nama, harga, modal (HPP), foto, keterangan, badge, dan ketersediaan bisa diubah di sini.</div>
           </div>
         </div>
-        <button class="btn green save" onclick="saveSale()">✅ Catat Transaksi Lunas</button>
-        <div id="salesMsg"></div>
-      </div>
 
-      <div class="sale-form">
-        <h3>Riwayat Transaksi Terbaru</h3>
-        <div id="salesList" class="sale-list"></div>
-      </div>
-    </div>
-  </section>
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/12.18.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/12.18.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/12.18.0/firebase-database-compat.js"></script>
-<script src="firebase-config.js"></script>
-<script src="database.js"></script>
-<script>
-const $ = id => document.getElementById(id);
-
-function message(el, text, isError=false){
-  el.innerHTML = text ? `<div class="msg ${isError?'error':''}">${text}</div>` : '';
-}
-function rupiah(n){ return "Rp " + Number(n || 0).toLocaleString("id-ID"); }
-function escapeHTML(value){
-  return String(value ?? "").replace(/[&<>'"]/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[char]));
-}
-function todayStore(){
-  const parts = new Intl.DateTimeFormat("en-CA", {timeZone:"Asia/Makassar", year:"numeric", month:"2-digit", day:"2-digit"}).formatToParts(new Date());
-  const get = type => parts.find(part => part.type === type)?.value;
-  return `${get("year")}-${get("month")}-${get("day")}`;
-}
-function displayDate(value){
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(value || ""))) return "Tanggal belum diisi";
-  return new Intl.DateTimeFormat("id-ID", {day:"2-digit",month:"short",year:"numeric"}).format(new Date(`${value}T12:00:00`));
-}
-function makeAdminInvoice(){
-  return `GM-${todayStore().replaceAll("-","")}-${String(Date.now()).slice(-6)}`;
-}
-
-async function login(){
-  if(!["http:", "https:"].includes(window.location.protocol)){
-    message($("loginMsg"), "Halaman admin dibuka dari file HP. Upload dulu isi folder ke GitHub, lalu buka admin dari link website GitHub.", true);
-    return;
-  }
-  message($("loginMsg"), "Memproses...");
-  try{
-    if(!GM_DB.enabled) throw new Error("Firebase belum siap. Periksa firebase-config.js.");
-    const email = $("email").value.trim();
-    const password = $("password").value;
-    if(!email || !password) throw new Error("Email dan password wajib diisi.");
-    await GM_DB.signIn(email,password);
-    await enterAdmin();
-  }catch(e){ message($("loginMsg"), GM_DB.errorMessage?.(e) || e.message || String(e), true); }
-}
-async function resetPassword(){
-  const email = $("email").value.trim();
-  if(!email){
-    message($("loginMsg"), "Isi email admin terlebih dahulu.", true);
-    return;
-  }
-  message($("loginMsg"), "Mengirim link reset password...");
-  try{
-    if(!GM_DB.enabled) throw new Error("Firebase belum siap. Periksa firebase-config.js.");
-    await GM_DB.sendPasswordReset(email);
-    message($("loginMsg"), "✅ Link reset password sudah dikirim. Cek Inbox atau folder Spam email kamu.");
-  }catch(e){ message($("loginMsg"), GM_DB.errorMessage?.(e) || e.message || String(e), true); }
-}
-async function logout(){
-  await GM_DB.signOut();
-  $("adminView").classList.add("hidden");
-  $("loginView").classList.remove("hidden");
-  $("password").value="";
-  message($("loginMsg"), "");
-}
-async function enterAdmin(){
-  try{
-    const session = await GM_DB.getSession();
-    if(!session){ return; }
-    const ok = await GM_DB.isAdmin(session.user.uid);
-    if(!ok){
-      await GM_DB.signOut();
-      throw new Error("Akun ini bukan admin Gorengan Mekarsari.");
-    }
-    await GM_DB.ensureInitialData();
-    $("loginView").classList.add("hidden");
-    $("adminView").classList.remove("hidden");
-    $("accountInfo").textContent = session.user.email;
-    if (!$("sale_paid_date").value) $("sale_paid_date").value = todayStore();
-    await loadAll();
-  }catch(e){
-    message($("loginMsg"), GM_DB.errorMessage?.(e) || e.message || String(e), true);
-  }
-}
-async function loadAll(){
-  const [products, settings] = await Promise.all([GM_DB.getProducts(), GM_DB.getSettings()]);
-  $("products").innerHTML = products.map(p => `
-    <div class="product" data-id="${p.id}">
-      <div class="product-head">
-        <div>
-          <h3>${p.name}</h3>
-          <div class="status">${p.id}</div>
+        <div class="section-gap">
+          <h3>Tambah Menu Baru</h3>
+          <div class="two-col">
+            <div><label for="new_name">Nama menu</label><input id="new_name" placeholder="Contoh: Pastel Ayam"></div>
+            <div><label for="new_category">Kategori</label><input id="new_category" placeholder="Contoh: Gorengan"></div>
+            <div><label for="new_price">Harga jual</label><input id="new_price" type="number" min="0" step="500" inputmode="numeric" placeholder="2000"></div>
+            <div><label for="new_cost">Modal / HPP per porsi</label><input id="new_cost" type="number" min="0" step="500" inputmode="numeric" placeholder="Contoh: 900"></div>
+            <div><label for="new_badge">Badge <span class="status">(opsional)</span></label><input id="new_badge" placeholder="Baru / Favorit / Promo"></div>
+            <div><label for="new_sort">Urutan tampil</label><input id="new_sort" type="number" min="0" step="1" inputmode="numeric" value="99"></div>
+            <div class="full"><label for="new_description">Keterangan menu</label><textarea id="new_description" placeholder="Keterangan singkat yang dilihat pelanggan"></textarea></div>
+            <div><label for="new_image_file">Foto dari galeri</label><input id="new_image_file" type="file" accept="image/*"><span class="help">Foto akan diperkecil otomatis agar aman disimpan di Firebase.</span></div>
+            <div><label for="new_image_url">Atau link foto <span class="status">(opsional)</span></label><input id="new_image_url" type="url" placeholder="https://..."></div>
+          </div>
+          <button class="btn primary full-btn" id="addProductBtn" type="button">＋ Tambah Menu</button>
         </div>
-        <label class="switch">
-          <input class="avail" type="checkbox" ${p.is_available?'checked':''}>
-          <span>${p.is_available?'Tersedia':'HABIS'}</span>
-        </label>
-      </div>
-      <div class="row2">
-        <div>
-          <label>Harga</label>
-          <input class="price" type="number" min="0" step="500" value="${p.price}">
+        <div id="products" class="product-grid"></div>
+      </section>
+
+      <section class="card">
+        <h2>🏪 Pengaturan Toko</h2>
+        <div class="two-col">
+          <div><label for="open_time">Jam buka</label><input id="open_time" type="time"></div>
+          <div><label for="close_time">Jam tutup</label><input id="close_time" type="time"></div>
+          <div><label for="min_delivery">Minimum pesanan antar</label><input id="min_delivery" type="number" min="0" step="1000" inputmode="numeric"></div>
+          <div><label for="whatsapp">Nomor WhatsApp</label><input id="whatsapp" type="text" placeholder="628..."></div>
+          <div class="full"><label for="address">Alamat toko</label><input id="address" type="text"></div>
+          <div class="full"><label for="map_url">Link Google Maps <span class="status">(opsional)</span></label><input id="map_url" type="url" placeholder="Salin link Bagikan dari Google Maps"></div>
+          <div class="full"><label for="delivery_zones">Area dan ongkir</label><textarea id="delivery_zones" placeholder="Contoh:\nMekarsari | 5000\nSepinggan | 10000"></textarea><span class="help">Satu baris satu area: <b>Nama area | ongkir</b>. Kosongkan bila ongkir tetap dikonfirmasi lewat WhatsApp.</span></div>
+          <div class="full"><label for="delivery_note">Catatan ongkir</label><input id="delivery_note" type="text"></div>
+          <div class="full"><label for="promo_text">Teks promo <span class="status">(opsional)</span></label><input id="promo_text" type="text" placeholder="Contoh: Promo Jumat: beli 5 gratis 1"></div>
+          <div class="full"><label for="instagram_url">Link Instagram <span class="status">(opsional)</span></label><input id="instagram_url" type="url" placeholder="https://instagram.com/..."> </div>
+          <div class="full"><label class="switch"><input id="online_payment_enabled" type="checkbox"><span>Tampilkan pilihan pembayaran online (QRIS / transfer)</span></label></div>
+          <div class="full"><label for="payment_instructions">Info pembayaran online</label><textarea id="payment_instructions" placeholder="Contoh: Scan QRIS yang dikirim admin atau transfer ke ..."></textarea><span class="help">Ini hanya informasi bagi pelanggan. Pembayaran otomatis asli memerlukan QRIS/merchant gateway sendiri.</span></div>
         </div>
-        <div>
-          <label>Badge</label>
-          <input class="badge" type="text" value="${p.badge || ''}" placeholder="Best Seller / Baru">
+        <button class="btn primary full-btn" id="saveSettingsBtn" type="button">Simpan Pengaturan Toko</button>
+      </section>
+
+      <section class="card">
+        <div class="toolbar"><div><h2>🧾 Pesanan &amp; Nota</h2><div class="status">Catat pesanan dari WhatsApp, lalu ubah statusnya saat dibayar atau selesai.</div></div></div>
+        <div class="section-gap">
+          <h3>Catat Pesanan</h3>
+          <div class="three-col">
+            <div><label for="sale_paid_date">Tanggal</label><input id="sale_paid_date" type="date"></div>
+            <div><label for="sale_status">Status</label><select id="sale_status"><option value="pending">Menunggu pembayaran</option><option value="paid">Sudah dibayar</option><option value="processing">Sedang diproses</option><option value="completed">Selesai</option><option value="cancelled">Dibatalkan</option></select></div>
+            <div><label for="sale_payment_method">Metode bayar</label><select id="sale_payment_method"><option>Tunai</option><option>QRIS</option><option>Transfer Bank</option><option>E-Wallet</option><option>Belum dibayar</option></select></div>
+            <div><label for="sale_buyer_name">Nama pembeli</label><input id="sale_buyer_name" placeholder="Opsional"></div>
+            <div><label for="sale_buyer_phone">Nomor WhatsApp</label><input id="sale_buyer_phone" placeholder="Opsional"></div>
+            <div><label for="sale_invoice_number">Nomor nota</label><input id="sale_invoice_number" placeholder="Otomatis bila dikosongkan"></div>
+          </div>
+          <div class="section-gap"><div class="toolbar"><h3>Isi Pesanan</h3><button class="btn ghost compact" id="addOrderItemBtn" type="button">＋ Tambah baris</button></div><div id="orderItems" class="order-items"></div></div>
+          <div class="two-col section-gap">
+            <div><label for="sale_delivery_fee">Ongkir <span class="status">(opsional)</span></label><input id="sale_delivery_fee" type="number" min="0" step="500" inputmode="numeric" value="0"></div>
+            <div><label for="sale_total">Total tagihan</label><input id="sale_total" type="number" min="1" step="500" inputmode="numeric"><span class="help">Diisi otomatis dari menu + ongkir; boleh diubah bila perlu.</span></div>
+            <div class="full"><label for="sale_note">Catatan</label><textarea id="sale_note" placeholder="Contoh: Antar ke RT 20, sudah transfer"></textarea></div>
+          </div>
+          <div class="order-total"><strong id="orderCalculation">Subtotal menu Rp 0 · Modal Rp 0 · Ongkir Rp 0</strong><div class="status">Modal diambil dari HPP menu untuk menghitung laba.</div></div>
+          <button class="btn green full-btn" id="saveSaleBtn" type="button">✅ Simpan Pesanan / Nota</button>
         </div>
-      </div>
-      <button class="btn primary save" onclick="saveProduct('${p.id}')">Simpan ${p.name}</button>
-      <div class="productMsg"></div>
-    </div>`).join("");
+        <div class="section-gap"><h3>Riwayat Pesanan</h3><div id="salesList" class="table-list"></div></div>
+      </section>
 
-  document.querySelectorAll(".avail").forEach(cb=>{
-    const text = cb.parentElement.querySelector("span");
-    const update=()=> text.textContent = cb.checked ? "Tersedia" : "HABIS";
-    cb.addEventListener("change",update); update();
-  });
+      <section class="card">
+        <h2>💸 Pengeluaran Toko</h2>
+        <div class="status">Catat gas, minyak, belanja bahan, transport, atau pengeluaran lain agar laba bersih lebih akurat.</div>
+        <div class="three-col section-gap">
+          <div><label for="expense_date">Tanggal</label><input id="expense_date" type="date"></div>
+          <div><label for="expense_category">Kategori</label><input id="expense_category" placeholder="Contoh: Belanja bahan"></div>
+          <div><label for="expense_amount">Nominal</label><input id="expense_amount" type="number" min="1" step="500" inputmode="numeric"></div>
+          <div class="full"><label for="expense_description">Keterangan</label><input id="expense_description" placeholder="Opsional"></div>
+        </div>
+        <button class="btn red full-btn" id="saveExpenseBtn" type="button">＋ Catat Pengeluaran</button>
+        <div id="expensesList" class="table-list"></div>
+      </section>
+    </section>
+  </main>
 
-  if(settings){
-    $("open_time").value = String(settings.open_time || "08:00").slice(0,5);
-    $("close_time").value = String(settings.close_time || "18:00").slice(0,5);
-    $("min_delivery").value = settings.min_delivery ?? 20000;
-    $("delivery_note").value = settings.delivery_note || "";
-    $("address").value = settings.address || "";
-    $("whatsapp").value = settings.whatsapp || "";
-    $("online_payment_enabled").checked = Boolean(settings.online_payment_enabled);
-    $("payment_instructions").value = settings.payment_instructions || "";
-  }
-  await loadSales();
-}
-async function saveProduct(id){
-  const card = document.querySelector(`.product[data-id="${id}"]`);
-  const msg = card.querySelector(".productMsg");
-  message(msg,"Menyimpan...");
-  try{
-    await GM_DB.updateProduct(id,{
-      price:Number(card.querySelector(".price").value || 0),
-      is_available:card.querySelector(".avail").checked,
-      badge:card.querySelector(".badge").value.trim()
-    });
-    message(msg,"✅ Berhasil. Website pelanggan langsung memakai data terbaru.");
-  }catch(e){ message(msg,GM_DB.errorMessage?.(e) || e.message || String(e),true); }
-}
-async function saveSettings(){
-  message($("settingsMsg"),"Menyimpan...");
-  try{
-    const onlinePaymentEnabled = $("online_payment_enabled").checked;
-    const paymentInstructions = $("payment_instructions").value.trim();
-    if (onlinePaymentEnabled && !paymentInstructions) {
-      throw new Error("Isi info QRIS atau transfer sebelum mengaktifkan pembayaran online.");
-    }
-    await GM_DB.updateSettings({
-      open_time:$("open_time").value + ":00",
-      close_time:$("close_time").value + ":00",
-      min_delivery:Number($("min_delivery").value || 0),
-      delivery_note:$("delivery_note").value.trim(),
-      address:$("address").value.trim(),
-      whatsapp:$("whatsapp").value.trim(),
-      online_payment_enabled:onlinePaymentEnabled,
-      payment_instructions:paymentInstructions
-    });
-    message($("settingsMsg"),"✅ Pengaturan toko berhasil diperbarui.");
-  }catch(e){ message($("settingsMsg"),GM_DB.errorMessage?.(e) || e.message || String(e),true); }
-}
-function renderSales(sales){
-  const today = todayStore();
-  const month = today.slice(0,7);
-  const sum = rows => rows.reduce((total, row) => total + Number(row.total || 0), 0);
-  const todayRows = sales.filter(row => row.paid_date === today);
-  const monthRows = sales.filter(row => String(row.paid_date || "").startsWith(month));
-
-  $("incomeToday").textContent = rupiah(sum(todayRows));
-  $("incomeTodayCount").textContent = `${todayRows.length} transaksi`;
-  $("incomeMonth").textContent = rupiah(sum(monthRows));
-  $("incomeMonthCount").textContent = `${monthRows.length} transaksi`;
-  $("incomeAll").textContent = rupiah(sum(sales));
-  $("incomeAllCount").textContent = `${sales.length} transaksi`;
-
-  const latest = sales[0];
-  $("incomeLatest").textContent = latest ? rupiah(latest.total) : "—";
-  $("incomeLatestText").textContent = latest ? displayDate(latest.paid_date) : "Belum ada data";
-
-  $("salesList").innerHTML = sales.length ? sales.slice(0,20).map(sale => {
-    const label = sale.invoice_number || "Transaksi tanpa nomor nota";
-    const buyer = sale.buyer_name || "Nama pembeli tidak diisi";
-    const note = sale.note ? ` • ${escapeHTML(sale.note)}` : "";
-    return `<div class="sale-row">
-      <div>
-        <strong>${escapeHTML(label)}</strong>
-        <div class="sale-meta">${displayDate(sale.paid_date)} • ${escapeHTML(sale.payment_method || "Tunai")}<br>${escapeHTML(buyer)}${note}</div>
-      </div>
-      <div class="sale-right">
-        <strong>${rupiah(sale.total)}</strong>
-        <button class="btn red" type="button" onclick="deleteSale('${sale.id}')">Hapus</button>
-      </div>
-    </div>`;
-  }).join("") : '<div class="empty-sales">Belum ada transaksi yang dicatat. Setelah pembayaran diterima, isi formulir di atas.</div>';
-}
-async function loadSales(){
-  try{
-    const sales = await GM_DB.getSales();
-    renderSales(sales);
-  }catch(e){
-    $("salesList").innerHTML = '<div class="empty-sales">Laporan belum dapat dimuat. Pastikan Rules Firebase terbaru sudah di-Publish.</div>';
-    message($("salesMsg"),GM_DB.errorMessage?.(e) || e.message || String(e),true);
-  }
-}
-async function saveSale(){
-  message($("salesMsg"),"Menyimpan transaksi...");
-  try{
-    const total = Number($("sale_total").value || 0);
-    if (!Number.isFinite(total) || total <= 0) throw new Error("Isi total transaksi terlebih dahulu.");
-    const invoice = $("sale_invoice_number").value.trim() || makeAdminInvoice();
-    await GM_DB.createSale({
-      invoice_number:invoice,
-      buyer_name:$("sale_buyer_name").value.trim(),
-      payment_method:$("sale_payment_method").value,
-      paid_date:$("sale_paid_date").value || todayStore(),
-      total,
-      note:$("sale_note").value.trim()
-    });
-    $("sale_invoice_number").value = "";
-    $("sale_buyer_name").value = "";
-    $("sale_total").value = "";
-    $("sale_note").value = "";
-    $("sale_paid_date").value = todayStore();
-    message($("salesMsg"),"✅ Transaksi lunas sudah dicatat dan masuk ke laporan pendapatan.");
-    await loadSales();
-  }catch(e){ message($("salesMsg"),GM_DB.errorMessage?.(e) || e.message || String(e),true); }
-}
-async function deleteSale(id){
-  if (!confirm("Hapus transaksi ini dari laporan? Gunakan hanya jika salah catat.")) return;
-  try{
-    await GM_DB.removeSale(id);
-    message($("salesMsg"),"✅ Transaksi dihapus dari laporan.");
-    await loadSales();
-  }catch(e){ message($("salesMsg"),GM_DB.errorMessage?.(e) || e.message || String(e),true); }
-}
-
-let deferredAdminInstallPrompt = null;
-window.addEventListener("beforeinstallprompt", event => {
-  event.preventDefault();
-  deferredAdminInstallPrompt = event;
-  const hint = $("installAdminHint");
-  if (hint) hint.textContent = "Tekan tombol ini untuk memasang Admin sebagai aplikasi di HP.";
-});
-window.addEventListener("appinstalled", () => {
-  deferredAdminInstallPrompt = null;
-  const button = $("installAdminBtn");
-  const hint = $("installAdminHint");
-  if (button) button.classList.add("hidden");
-  if (hint) hint.textContent = "✅ Aplikasi Admin sudah terpasang di layar utama HP.";
-});
-async function installAdmin(){
-  if (!deferredAdminInstallPrompt) {
-    message($("loginMsg"), "Jika pemasangan belum muncul, buka menu ⋮ Chrome lalu pilih “Install app” atau “Tambahkan ke layar utama”.");
-    return;
-  }
-  deferredAdminInstallPrompt.prompt();
-  try { await deferredAdminInstallPrompt.userChoice; } catch(e) {}
-  deferredAdminInstallPrompt = null;
-}
-
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./service-worker.js").catch(() => {});
-  });
-}
-
-(async()=>{
-  if(!window.GM_DB?.enabled){
-    message($("loginMsg"),"Firebase belum dihubungkan. Periksa firebase-config.js terlebih dahulu.",true);
-    return;
-  }
-  await enterAdmin();
-})();
-</script>
+  <script src="https://www.gstatic.com/firebasejs/12.18.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.18.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.18.0/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="database.js"></script>
+  <script src="admin-app.js"></script>
 </body>
 </html>

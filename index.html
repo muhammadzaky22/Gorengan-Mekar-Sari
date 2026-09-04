@@ -493,6 +493,7 @@ footer.footer{background:linear-gradient(90deg,#4b2408,#24140a); color:#fff; mar
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Gorengan Mekarsari">
+<link rel="stylesheet" href="store-enhancements.css">
 
 </head>
 <body>
@@ -533,13 +534,15 @@ footer.footer{background:linear-gradient(90deg,#4b2408,#24140a); color:#fff; mar
   </div>
 </header>
 
+<div class="live-promo hidden" id="livePromo" role="status"></div>
+
 <main class="container">
   <section class="hero" id="beranda">
     <div class="hero-inner">
       <div class="hero-copy">
         <div class="pill">Gorengan Mekarsari</div>
         <h1>Gorengan Hangat,<br>Rasa Nikmat, Harga Bersahabat</h1>
-        <p>Teman terbaik untuk segala suasana.<br>Gorengan fresh setiap hari di Jalan Mekarsari RT 20 No. 18.</p>
+        <p>Teman terbaik untuk segala suasana.<br>Gorengan fresh setiap hari di <span id="heroAddress">Jalan Mekarsari RT 20 No. 18</span>.</p>
         <a class="cta-hero" data-whatsapp-link href="https://wa.me/6289512340428?text=Halo%20Gorengan%20Mekarsari%2C%20saya%20mau%20pesan." target="_blank">💬 Pesan via WhatsApp</a>
       </div>
     </div>
@@ -726,10 +729,11 @@ footer.footer{background:linear-gradient(90deg,#4b2408,#24140a); color:#fff; mar
 
         <div class="info-box" id="lokasi">
           <h3>📍 Lokasi Kami</h3>
-          <p>Jalan Mekarsari RT 20 No. 18<br>Temukan kami di sini:</p>
+          <p><span id="storeAddressText">Jalan Mekarsari RT 20 No. 18</span><br>Temukan kami di sini:</p>
           <div class="map-card">
             <iframe
               title="Lokasi Gorengan Mekarsari"
+              id="storeMapFrame"
               src="https://www.google.com/maps?q=Jalan%20Mekarsari%20RT%2020%20No%2018%20Balikpapan%20Kalimantan%20Timur&output=embed"
               width="100%"
               height="180"
@@ -739,7 +743,7 @@ footer.footer{background:linear-gradient(90deg,#4b2408,#24140a); color:#fff; mar
               allowfullscreen>
             </iframe>
           </div>
-          <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Jalan%20Mekarsari%20RT%2020%20No%2018%20Balikpapan%20Kalimantan%20Timur" target="_blank">Lihat di Google Maps ↗</a>
+          <a class="map-link" id="storeMapLink" href="https://www.google.com/maps/search/?api=1&query=Jalan%20Mekarsari%20RT%2020%20No%2018%20Balikpapan%20Kalimantan%20Timur" target="_blank" rel="noopener">Lihat di Google Maps ↗</a>
         </div>
 
         <div class="info-box">
@@ -750,7 +754,7 @@ footer.footer{background:linear-gradient(90deg,#4b2408,#24140a); color:#fff; mar
           <h3>🟠 Hubungi Kami</h3>
           <div class="contact-list">
             <div class="contact-item"><span>🟢</span><a href="tel:+6289512340428">0895-1234-0428</a></div>
-            <div class="contact-item"><span>📸</span><span>Instagram: segera hadir</span></div>
+            <div class="contact-item" id="instagramContact"><span>📸</span><span>Instagram: segera hadir</span></div>
           </div>
         </div>
       </section>
@@ -787,6 +791,7 @@ footer.footer{background:linear-gradient(90deg,#4b2408,#24140a); color:#fff; mar
         <span>Total</span>
         <span id="totalDesktop">Rp 0</span>
       </div>
+      <div class="live-order-breakdown" id="orderBreakdownDesktop"></div>
       
       <div class="checkout-form">
         <label class="checkout-label" for="buyerNameDesktop">Nama Pembeli</label>
@@ -805,6 +810,10 @@ footer.footer{background:linear-gradient(90deg,#4b2408,#24140a); color:#fff; mar
         <div class="delivery-address-wrap" id="deliveryAddressWrapDesktop">
           <label class="checkout-label" for="deliveryAddressDesktop">Alamat Pengantaran</label>
           <input class="checkout-input" id="deliveryAddressDesktop" type="text" placeholder="Masukkan alamat lengkap">
+        </div>
+        <div class="delivery-zone-wrap" id="deliveryZoneWrapDesktop">
+          <label class="checkout-label" for="deliveryZoneDesktop">Pilih area pengantaran</label>
+          <select class="checkout-select" id="deliveryZoneDesktop"></select>
         </div>
 
         <label class="checkout-label" for="paymentMethodDesktop">Metode Pembayaran</label>
@@ -872,6 +881,7 @@ footer.footer{background:linear-gradient(90deg,#4b2408,#24140a); color:#fff; mar
       <span>Total</span>
       <span id="totalMobile">Rp 0</span>
     </div>
+    <div class="live-order-breakdown" id="orderBreakdownMobile"></div>
     
     <div class="checkout-form">
       <label class="checkout-label" for="buyerNameMobile">Nama Pembeli</label>
@@ -890,6 +900,10 @@ footer.footer{background:linear-gradient(90deg,#4b2408,#24140a); color:#fff; mar
       <div class="delivery-address-wrap" id="deliveryAddressWrapMobile">
         <label class="checkout-label" for="deliveryAddressMobile">Alamat Pengantaran</label>
         <input class="checkout-input" id="deliveryAddressMobile" type="text" placeholder="Masukkan alamat lengkap">
+      </div>
+      <div class="delivery-zone-wrap" id="deliveryZoneWrapMobile">
+        <label class="checkout-label" for="deliveryZoneMobile">Pilih area pengantaran</label>
+        <select class="checkout-select" id="deliveryZoneMobile"></select>
       </div>
 
       <label class="checkout-label" for="paymentMethodMobile">Metode Pembayaran</label>
@@ -1593,5 +1607,6 @@ if ("serviceWorker" in navigator) {
 }
 
 </script>
+<script src="store-enhancements.js"></script>
 </body>
 </html>

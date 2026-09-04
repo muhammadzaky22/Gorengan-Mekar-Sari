@@ -1,4 +1,4 @@
-const CACHE = "gorengan-mekarsari-v7-admin-app";
+const CACHE = "gorengan-mekarsari-v8-live-orders";
 const ASSETS = [
   "./",
   "./index.html",
@@ -10,8 +10,12 @@ const ASSETS = [
   "./gorengan-mekarsari-preview.webp",
   "./admin-stok.html",
   "./admin.html",
+  "./admin-app.css",
+  "./admin-app.js",
   "./firebase-config.js",
-  "./database.js"
+  "./database.js",
+  "./store-enhancements.css",
+  "./store-enhancements.js"
 ];
 
 self.addEventListener("install", event => {

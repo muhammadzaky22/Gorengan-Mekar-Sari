@@ -1,7 +1,7 @@
 {
   "name": "Admin Gorengan Mekarsari",
   "short_name": "Admin Gorengan",
-  "description": "Aplikasi admin untuk mengelola stok, harga, pembayaran, dan pendapatan Gorengan Mekarsari.",
+  "description": "Aplikasi admin untuk mengelola menu, foto, pesanan, pengeluaran, dan laporan Gorengan Mekarsari.",
   "start_url": "./admin.html",
   "scope": "./",
   "display": "standalone",
