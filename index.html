@@ -160,16 +160,16 @@ header.header{
 .product-body h3{margin:0 0 5px; font-size:1.02rem}
 .price{color:var(--accent); font-size:1.08rem; font-weight:900; margin-bottom:8px}
 .product-body p{margin:0 0 11px; color:var(--muted); font-size:.9rem; min-height:40px; line-height:1.4}
-.qty-row{display:grid; grid-template-columns:36px 1fr 36px; gap:7px; margin-bottom:10px}
+.qty-row{display:grid; grid-template-columns:36px minmax(0,1fr) 36px; gap:7px; margin-bottom:10px}
 .qty-btn{
-  border:1px solid #ddd5c8; background:#f7f6f4; border-radius:8px; height:34px; cursor:pointer; font-size:1.1rem;
+  border:1px solid #ddd5c8; background:#f7f6f4; border-radius:8px; height:34px; cursor:pointer; font-size:1.1rem; touch-action:manipulation;
 }
 .qty-input{
-  border:1px solid #ddd5c8; border-radius:8px; height:34px; text-align:center; font-weight:700; background:#fff;
+  width:100%; min-width:0; padding:0 2px; border:1px solid #ddd5c8; border-radius:8px; height:34px; text-align:center; font-weight:700; background:#fff;
 }
 .add-btn{
   width:100%; border:none; border-radius:10px; padding:11px 12px; cursor:pointer;
-  background:var(--yellow); color:#2d1a0d; font-weight:900;
+  background:var(--yellow); color:#2d1a0d; font-weight:900; touch-action:manipulation;
 }
 
 .cart-box{
@@ -308,6 +308,8 @@ footer.footer{background:linear-gradient(90deg,#4b2408,#24140a); color:#fff; mar
   .product-body h3{font-size:.98rem}
   .price{font-size:1rem}
   .product-body p{font-size:.84rem; min-height:48px}
+  .qty-row{grid-template-columns:34px minmax(0,1fr) 34px; gap:5px}
+  .qty-btn,.qty-input{height:36px}
 }
 
 .checkout-form{
@@ -486,7 +488,7 @@ footer.footer{background:linear-gradient(90deg,#4b2408,#24140a); color:#fff; mar
       <a href="#lokasi">Lokasi</a>
     </nav>
 
-    <a class="nav-cta" href="https://wa.me/6289512340428?text=Halo%20Gorengan%20Mekarsari%2C%20saya%20mau%20pesan." target="_blank">🟢 Pesan Sekarang</a>
+    <a class="nav-cta" data-whatsapp-link href="https://wa.me/6289512340428?text=Halo%20Gorengan%20Mekarsari%2C%20saya%20mau%20pesan." target="_blank">🟢 Pesan Sekarang</a>
     <button class="mobile-toggle" id="mobileToggle">☰</button>
   </div>
 </header>
@@ -498,7 +500,7 @@ footer.footer{background:linear-gradient(90deg,#4b2408,#24140a); color:#fff; mar
         <div class="pill">Gorengan Mekarsari</div>
         <h1>Gorengan Hangat,<br>Rasa Nikmat, Harga Bersahabat</h1>
         <p>Teman terbaik untuk segala suasana.<br>Gorengan fresh setiap hari di Jalan Mekarsari RT 20 No. 18.</p>
-        <a class="cta-hero" href="https://wa.me/6289512340428?text=Halo%20Gorengan%20Mekarsari%2C%20saya%20mau%20pesan." target="_blank">💬 Pesan via WhatsApp</a>
+        <a class="cta-hero" data-whatsapp-link href="https://wa.me/6289512340428?text=Halo%20Gorengan%20Mekarsari%2C%20saya%20mau%20pesan." target="_blank">💬 Pesan via WhatsApp</a>
       </div>
     </div>
   </section>
@@ -810,7 +812,7 @@ footer.footer{background:linear-gradient(90deg,#4b2408,#24140a); color:#fff; mar
 </footer>
 
 <button class="fab-cart" onclick="toggleMobileCart()">🛒 Keranjang <span id="countFab">0</span></button>
-<button class="wa-float" onclick="window.open('https://wa.me/6289512340428?text=Halo%20Gorengan%20Mekarsari%2C%20saya%20mau%20pesan.','_blank')">💬</button>
+<button class="wa-float" onclick="openQuickWhatsApp()">💬</button>
 
 <div class="mobile-cart-overlay" id="mobileCartOverlay">
   <div class="mobile-cart-panel">
@@ -902,6 +904,16 @@ function applyStockStatus() {
       qtyBtns.forEach(b => b.disabled = true);
     }
   });
+}
+
+function correctSwappedMenuImages() {
+  const singkongImage = document.querySelector('.product-card[data-id="singkong"] img');
+  const ubiImage = document.querySelector('.product-card[data-id="ubi"] img');
+  if (!singkongImage || !ubiImage) return;
+
+  const singkongSource = singkongImage.getAttribute("src");
+  singkongImage.setAttribute("src", ubiImage.getAttribute("src"));
+  ubiImage.setAttribute("src", singkongSource);
 }
 
 let STORE_IS_OPEN = true;
@@ -1187,6 +1199,17 @@ function formatPhone(value) {
   return local.replace(/^(\d{4})(\d{4})(\d+)$/, "$1-$2-$3");
 }
 
+function syncWhatsAppLinks() {
+  const message = "Halo Gorengan Mekarsari, saya mau pesan.";
+  const url = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(message)}`;
+  document.querySelectorAll("[data-whatsapp-link]").forEach(link => link.href = url);
+}
+
+function openQuickWhatsApp() {
+  const message = encodeURIComponent("Halo Gorengan Mekarsari, saya mau pesan.");
+  window.open(`https://wa.me/${WHATSAPP}?text=${message}`, "_blank");
+}
+
 async function syncFromDatabase() {
   if (!window.GM_DB?.enabled) return;
   try {
@@ -1235,6 +1258,7 @@ async function syncFromDatabase() {
       document.querySelectorAll(".delivery-note-text").forEach(el => el.textContent = STORE_SETTINGS.deliveryNote + ".");
 
       if (settings.whatsapp) WHATSAPP = normalizeWhatsApp(settings.whatsapp);
+      syncWhatsAppLinks();
     }
 
     applyStockStatus();
@@ -1292,6 +1316,7 @@ loadCheckoutFields();
 toggleDeliveryAddress('desktop');
 toggleDeliveryAddress('mobile');
 bindCheckoutPersistence();
+correctSwappedMenuImages();
 applyStockStatus();
 updateOpenStatus();
 setInterval(updateOpenStatus, 60000);

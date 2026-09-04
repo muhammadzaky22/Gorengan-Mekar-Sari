@@ -1,4 +1,4 @@
-const CACHE = "gorengan-mekarsari-v4-firebase";
+const CACHE = "gorengan-mekarsari-v5-firebase";
 const ASSETS = [
   "./",
   "./index.html",

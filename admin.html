@@ -30,6 +30,7 @@ label{display:block;font-weight:800;margin:10px 0 6px}.btn{border:0;border-radiu
     <label>Password</label>
     <input id="password" type="password" autocomplete="current-password" placeholder="password">
     <button class="btn green" style="width:100%;margin-top:14px" onclick="login()">Masuk</button>
+    <button class="btn ghost" type="button" style="width:100%;margin-top:9px" onclick="resetPassword()">Lupa password?</button>
     <div id="loginMsg"></div>
   </section>
 
@@ -104,6 +105,10 @@ function message(el, text, isError=false){
 function rupiah(n){ return "Rp " + Number(n || 0).toLocaleString("id-ID"); }
 
 async function login(){
+  if(!["http:", "https:"].includes(window.location.protocol)){
+    message($("loginMsg"), "Halaman admin dibuka dari file HP. Upload dulu isi folder ke GitHub, lalu buka admin dari link website GitHub.", true);
+    return;
+  }
   message($("loginMsg"), "Memproses...");
   try{
     if(!GM_DB.enabled) throw new Error("Firebase belum siap. Periksa firebase-config.js.");
@@ -112,6 +117,19 @@ async function login(){
     if(!email || !password) throw new Error("Email dan password wajib diisi.");
     await GM_DB.signIn(email,password);
     await enterAdmin();
+  }catch(e){ message($("loginMsg"), GM_DB.errorMessage?.(e) || e.message || String(e), true); }
+}
+async function resetPassword(){
+  const email = $("email").value.trim();
+  if(!email){
+    message($("loginMsg"), "Isi email admin terlebih dahulu.", true);
+    return;
+  }
+  message($("loginMsg"), "Mengirim link reset password...");
+  try{
+    if(!GM_DB.enabled) throw new Error("Firebase belum siap. Periksa firebase-config.js.");
+    await GM_DB.sendPasswordReset(email);
+    message($("loginMsg"), "✅ Link reset password sudah dikirim. Cek Inbox atau folder Spam email kamu.");
   }catch(e){ message($("loginMsg"), GM_DB.errorMessage?.(e) || e.message || String(e), true); }
 }
 async function logout(){
@@ -125,7 +143,7 @@ async function enterAdmin(){
   try{
     const session = await GM_DB.getSession();
     if(!session){ return; }
-    const ok = await GM_DB.isAdmin(session.user.id);
+    const ok = await GM_DB.isAdmin(session.user.uid);
     if(!ok){
       await GM_DB.signOut();
       throw new Error("Akun ini bukan admin Gorengan Mekarsari.");

@@ -69,7 +69,13 @@
 
   function userMessage(error) {
     const code = error?.code || "";
-    if (code === "auth/invalid-credential" || code === "auth/wrong-password" || code === "auth/user-not-found") {
+    if (code === "auth/invalid-email") {
+      return "Alamat email tidak valid.";
+    }
+    if (code === "auth/user-not-found") {
+      return "Email ini belum terdaftar di Firebase.";
+    }
+    if (code === "auth/invalid-credential" || code === "auth/wrong-password") {
       return "Email atau password salah.";
     }
     if (code === "auth/too-many-requests") {
@@ -102,6 +108,11 @@
       needsFirebase();
       const result = await auth.signInWithEmailAndPassword(email, password);
       return result.user;
+    },
+
+    async sendPasswordReset(email) {
+      needsFirebase();
+      await auth.sendPasswordResetEmail(email);
     },
 
     async signOut() {
