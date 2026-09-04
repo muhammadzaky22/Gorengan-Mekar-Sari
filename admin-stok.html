@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pengaturan Stok - Gorengan Mekarsari</title>
+<style>
+body{font-family:Arial,sans-serif;background:#fff8ef;color:#302418;margin:0;padding:20px}
+.wrap{max-width:650px;margin:auto}
+.card{background:white;border:1px solid #eadfce;border-radius:18px;padding:20px;box-shadow:0 12px 28px rgba(0,0,0,.06)}
+h1{margin-top:0}.row{display:grid;grid-template-columns:1fr auto 85px;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid #eee}
+.row:last-child{border-bottom:0}input[type=checkbox]{width:23px;height:23px}.state{font-weight:800;color:#1b8a3a}
+button{width:100%;margin-top:18px;border:0;border-radius:12px;background:#ffd42c;padding:14px;font-weight:900;cursor:pointer}
+.note{color:#74685a;line-height:1.55}code{background:#f4efe8;padding:2px 5px;border-radius:5px}
+</style>
+</head>
+<body><div class="wrap"><div class="card">
+<h1>⚙️ Pengaturan Stok</h1>
+<p class="note">Pilih menu yang tersedia. Matikan centang untuk menu yang HABIS, lalu tekan tombol di bawah. File <code>stok-config.js</code> akan dibuat. Setelah itu ganti file lama di GitHub Pages dengan file yang baru.</p>
+<label class="row"><span>Pisang Goreng</span><input type="checkbox" id="pisang" checked><span class="state">Tersedia</span></label>
+<label class="row"><span>Singkong Goreng</span><input type="checkbox" id="singkong" checked><span class="state">Tersedia</span></label>
+<label class="row"><span>Tempe Goreng</span><input type="checkbox" id="tempe" checked><span class="state">Tersedia</span></label>
+<label class="row"><span>Tahu Goreng</span><input type="checkbox" id="tahu" checked><span class="state">Tersedia</span></label>
+<label class="row"><span>Bakwan Sayur</span><input type="checkbox" id="bakwan" checked><span class="state">Tersedia</span></label>
+<label class="row"><span>Ubi Goreng</span><input type="checkbox" id="ubi" checked><span class="state">Tersedia</span></label>
+<label class="row"><span>Risoles</span><input type="checkbox" id="risoles" checked><span class="state">Tersedia</span></label>
+<label class="row"><span>Tahu Isi</span><input type="checkbox" id="tahuisi" checked><span class="state">Tersedia</span></label>
+<label class="row"><span>Paket Hemat Gorengan Komplit</span><input type="checkbox" id="paketkomplit" checked><span class="state">Tersedia</span></label>
+<button onclick="downloadConfig()">⬇️ Buat stok-config.js</button>
+</div></div>
+<script>
+document.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
+  const state=cb.parentElement.querySelector('.state');
+  const update=()=>{state.textContent=cb.checked?'Tersedia':'HABIS';state.style.color=cb.checked?'#1b8a3a':'#c9322b';};
+  cb.addEventListener('change',update);update();
+});
+function downloadConfig(){
+  const ids=["pisang", "singkong", "tempe", "tahu", "bakwan", "ubi", "risoles", "tahuisi", "paketkomplit"];
+  let text='// true = TERSEDIA, false = HABIS\nwindow.STOCK_CONFIG = {\n';
+  text += ids.map(id=>'  '+id+': '+document.getElementById(id).checked).join(',\n');
+  text += '\n};\n';
+  const blob=new Blob([text],{type:'text/javascript'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download='stok-config.js';a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+</script>
+</body></html>
