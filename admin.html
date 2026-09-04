@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Admin Gorengan Mekarsari</title>
+<meta name="theme-color" content="#2d1a0d">
+<style>
+:root{--bg:#fff8ef;--card:#fff;--line:#eadfce;--text:#302418;--muted:#74685a;--yellow:#ffd42c;--green:#22b14c;--red:#d63b32;--shadow:0 14px 30px rgba(48,28,10,.08)}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+.wrap{width:min(980px,calc(100% - 24px));margin:24px auto 70px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}.top h1{margin:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow);margin-bottom:16px}
+input,select{width:100%;padding:12px;border:1px solid #ddd3c4;border-radius:10px;font:inherit;background:#fff}
+label{display:block;font-weight:800;margin:10px 0 6px}.btn{border:0;border-radius:11px;padding:12px 15px;font-weight:900;cursor:pointer}.primary{background:var(--yellow);color:#2d1a0d}.green{background:var(--green);color:#fff}.ghost{background:#f5f1eb;color:#44372c}.red{background:#fff0ef;color:#ae2c26}
+.login{max-width:460px;margin:70px auto}.login h1{margin-top:0}.hint{color:var(--muted);line-height:1.55;font-size:.92rem}.msg{margin-top:12px;padding:10px 12px;border-radius:10px;background:#f7f2e8}.error{background:#fff0ef;color:#a92d26}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}.status{font-size:.9rem;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.product{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff}.product-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.product h3{margin:0}.switch{display:flex;align-items:center;gap:8px;font-weight:800}.switch input{width:22px;height:22px}.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.save{width:100%;margin-top:12px}
+.settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.full{grid-column:1/-1}
+.hidden{display:none!important}
+@media(max-width:650px){.grid,.settings-grid,.row2{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}.top .actions{width:100%;display:flex;gap:8px}.top .actions button{flex:1}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section id="loginView" class="login card">
+    <h1>🔐 Admin Gorengan</h1>
+    <p class="hint">Login untuk mengubah stok, harga, badge, dan jam toko. Perubahan langsung terbaca di website pelanggan tanpa upload GitHub lagi.</p>
+    <label>Email</label>
+    <input id="email" type="email" autocomplete="username" placeholder="email admin">
+    <label>Password</label>
+    <input id="password" type="password" autocomplete="current-password" placeholder="password">
+    <button class="btn green" style="width:100%;margin-top:14px" onclick="login()">Masuk</button>
+    <div id="loginMsg"></div>
+  </section>
+
+  <section id="adminView" class="hidden">
+    <div class="top">
+      <div>
+        <h1>⚙️ Admin Gorengan Mekarsari</h1>
+        <div class="status" id="accountInfo"></div>
+      </div>
+      <div class="actions">
+        <a class="btn ghost" href="index.html" style="display:inline-block;text-align:center">Lihat Toko</a>
+        <button class="btn red" onclick="logout()">Keluar</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="toolbar">
+        <div>
+          <strong>Produk</strong>
+          <div class="status">Matikan “Tersedia” bila stok habis, lalu Simpan. Website langsung ikut berubah.</div>
+        </div>
+        <button class="btn ghost" onclick="loadAll()">↻ Refresh</button>
+      </div>
+      <div id="products" class="grid" style="margin-top:14px"></div>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-top:0">Pengaturan Toko</h2>
+      <div class="settings-grid">
+        <div>
+          <label>Jam buka</label>
+          <input id="open_time" type="time">
+        </div>
+        <div>
+          <label>Jam tutup</label>
+          <input id="close_time" type="time">
+        </div>
+        <div>
+          <label>Minimum pesanan antar</label>
+          <input id="min_delivery" type="number" min="0" step="1000">
+        </div>
+        <div>
+          <label>WhatsApp</label>
+          <input id="whatsapp" type="text">
+        </div>
+        <div class="full">
+          <label>Catatan ongkir</label>
+          <input id="delivery_note" type="text">
+        </div>
+        <div class="full">
+          <label>Alamat</label>
+          <input id="address" type="text">
+        </div>
+      </div>
+      <button class="btn primary save" onclick="saveSettings()">Simpan Pengaturan Toko</button>
+      <div id="settingsMsg"></div>
+    </div>
+  </section>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/12.18.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.18.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.18.0/firebase-database-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="database.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+
+function message(el, text, isError=false){
+  el.innerHTML = text ? `<div class="msg ${isError?'error':''}">${text}</div>` : '';
+}
+function rupiah(n){ return "Rp " + Number(n || 0).toLocaleString("id-ID"); }
+
+async function login(){
+  message($("loginMsg"), "Memproses...");
+  try{
+    if(!GM_DB.enabled) throw new Error("Firebase belum siap. Periksa firebase-config.js.");
+    const email = $("email").value.trim();
+    const password = $("password").value;
+    if(!email || !password) throw new Error("Email dan password wajib diisi.");
+    await GM_DB.signIn(email,password);
+    await enterAdmin();
+  }catch(e){ message($("loginMsg"), GM_DB.errorMessage?.(e) || e.message || String(e), true); }
+}
+async function logout(){
+  await GM_DB.signOut();
+  $("adminView").classList.add("hidden");
+  $("loginView").classList.remove("hidden");
+  $("password").value="";
+  message($("loginMsg"), "");
+}
+async function enterAdmin(){
+  try{
+    const session = await GM_DB.getSession();
+    if(!session){ return; }
+    const ok = await GM_DB.isAdmin(session.user.id);
+    if(!ok){
+      await GM_DB.signOut();
+      throw new Error("Akun ini bukan admin Gorengan Mekarsari.");
+    }
+    await GM_DB.ensureInitialData();
+    $("loginView").classList.add("hidden");
+    $("adminView").classList.remove("hidden");
+    $("accountInfo").textContent = session.user.email;
+    await loadAll();
+  }catch(e){
+    message($("loginMsg"), GM_DB.errorMessage?.(e) || e.message || String(e), true);
+  }
+}
+async function loadAll(){
+  const [products, settings] = await Promise.all([GM_DB.getProducts(), GM_DB.getSettings()]);
+  $("products").innerHTML = products.map(p => `
+    <div class="product" data-id="${p.id}">
+      <div class="product-head">
+        <div>
+          <h3>${p.name}</h3>
+          <div class="status">${p.id}</div>
+        </div>
+        <label class="switch">
+          <input class="avail" type="checkbox" ${p.is_available?'checked':''}>
+          <span>${p.is_available?'Tersedia':'HABIS'}</span>
+        </label>
+      </div>
+      <div class="row2">
+        <div>
+          <label>Harga</label>
+          <input class="price" type="number" min="0" step="500" value="${p.price}">
+        </div>
+        <div>
+          <label>Badge</label>
+          <input class="badge" type="text" value="${p.badge || ''}" placeholder="Best Seller / Baru">
+        </div>
+      </div>
+      <button class="btn primary save" onclick="saveProduct('${p.id}')">Simpan ${p.name}</button>
+      <div class="productMsg"></div>
+    </div>`).join("");
+
+  document.querySelectorAll(".avail").forEach(cb=>{
+    const text = cb.parentElement.querySelector("span");
+    const update=()=> text.textContent = cb.checked ? "Tersedia" : "HABIS";
+    cb.addEventListener("change",update); update();
+  });
+
+  if(settings){
+    $("open_time").value = String(settings.open_time || "08:00").slice(0,5);
+    $("close_time").value = String(settings.close_time || "18:00").slice(0,5);
+    $("min_delivery").value = settings.min_delivery ?? 20000;
+    $("delivery_note").value = settings.delivery_note || "";
+    $("address").value = settings.address || "";
+    $("whatsapp").value = settings.whatsapp || "";
+  }
+}
+async function saveProduct(id){
+  const card = document.querySelector(`.product[data-id="${id}"]`);
+  const msg = card.querySelector(".productMsg");
+  message(msg,"Menyimpan...");
+  try{
+    await GM_DB.updateProduct(id,{
+      price:Number(card.querySelector(".price").value || 0),
+      is_available:card.querySelector(".avail").checked,
+      badge:card.querySelector(".badge").value.trim()
+    });
+    message(msg,"✅ Berhasil. Website pelanggan langsung memakai data terbaru.");
+  }catch(e){ message(msg,GM_DB.errorMessage?.(e) || e.message || String(e),true); }
+}
+async function saveSettings(){
+  message($("settingsMsg"),"Menyimpan...");
+  try{
+    await GM_DB.updateSettings({
+      open_time:$("open_time").value + ":00",
+      close_time:$("close_time").value + ":00",
+      min_delivery:Number($("min_delivery").value || 0),
+      delivery_note:$("delivery_note").value.trim(),
+      address:$("address").value.trim(),
+      whatsapp:$("whatsapp").value.trim()
+    });
+    message($("settingsMsg"),"✅ Pengaturan toko berhasil diperbarui.");
+  }catch(e){ message($("settingsMsg"),GM_DB.errorMessage?.(e) || e.message || String(e),true); }
+}
+
+(async()=>{
+  if(!window.GM_DB?.enabled){
+    message($("loginMsg"),"Firebase belum dihubungkan. Periksa firebase-config.js terlebih dahulu.",true);
+    return;
+  }
+  await enterAdmin();
+})();
+</script>
+</body>
+</html>

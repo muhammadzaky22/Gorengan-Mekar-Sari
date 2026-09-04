@@ -702,7 +702,7 @@ footer.footer{background:linear-gradient(90deg,#4b2408,#24140a); color:#fff; mar
 
         <div class="info-box">
           <h3>🕒 Jam Operasional</h3>
-          <p>Setiap Hari<br><strong style="color:#2d1a0d">08:00 - 18:00 WITA</strong></p>
+          <p>Setiap Hari<br><strong id="hoursText" style="color:#2d1a0d">08:00 - 18:00 WITA</strong></p>
           <div class="open-status" id="openStatus"><span class="status-dot"></span><span>Status buka/tutup otomatis mengikuti WITA</span></div>
           <div class="hr"></div>
           <h3>🟠 Hubungi Kami</h3>
@@ -758,7 +758,7 @@ footer.footer{background:linear-gradient(90deg,#4b2408,#24140a); color:#fff; mar
           <option value="Ambil Sendiri">Ambil Sendiri</option>
           <option value="Antar">Antar</option>
         </select>
-        <div class="delivery-help">Minimal pesanan antar <strong>Rp20.000</strong>. Ongkir dikonfirmasi melalui WhatsApp.</div>
+        <div class="delivery-help">Minimal pesanan antar <strong class="min-delivery-text">Rp20.000</strong>. <span class="delivery-note-text">Ongkir dikonfirmasi melalui WhatsApp.</span></div>
 
         <div class="delivery-address-wrap" id="deliveryAddressWrapDesktop">
           <label class="checkout-label" for="deliveryAddressDesktop">Alamat Pengantaran</label>
@@ -836,7 +836,7 @@ footer.footer{background:linear-gradient(90deg,#4b2408,#24140a); color:#fff; mar
         <option value="Ambil Sendiri">Ambil Sendiri</option>
         <option value="Antar">Antar</option>
       </select>
-      <div class="delivery-help">Minimal pesanan antar <strong>Rp20.000</strong>. Ongkir dikonfirmasi melalui WhatsApp.</div>
+      <div class="delivery-help">Minimal pesanan antar <strong class="min-delivery-text">Rp20.000</strong>. <span class="delivery-note-text">Ongkir dikonfirmasi melalui WhatsApp.</span></div>
 
       <div class="delivery-address-wrap" id="deliveryAddressWrapMobile">
         <label class="checkout-label" for="deliveryAddressMobile">Alamat Pengantaran</label>
@@ -854,11 +854,23 @@ footer.footer{background:linear-gradient(90deg,#4b2408,#24140a); color:#fff; mar
   </div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/12.18.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.18.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.18.0/firebase-database-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="database.js"></script>
 <script src="stok-config.js"></script>
 <script>
-const WHATSAPP = "6289512340428";
+let WHATSAPP = "6289512340428";
 
-const MIN_DELIVERY = 20000;
+let MIN_DELIVERY = 20000;
+const LIVE_PRODUCTS = {};
+const STORE_SETTINGS = {
+  openTime: "08:00",
+  closeTime: "18:00",
+  timezone: "Asia/Makassar",
+  deliveryNote: "Ongkir dikonfirmasi melalui WhatsApp"
+};
 const STOCK = Object.assign({
   pisang: true,
   singkong: true,
@@ -896,7 +908,7 @@ let STORE_IS_OPEN = true;
 
 function updateOpenStatus() {
   const parts = new Intl.DateTimeFormat("en-GB", {
-    timeZone: "Asia/Makassar",
+    timeZone: STORE_SETTINGS.timezone || "Asia/Makassar",
     hour: "2-digit",
     minute: "2-digit",
     hour12: false
@@ -905,7 +917,9 @@ function updateOpenStatus() {
   const hour = Number(parts.find(p => p.type === "hour").value);
   const minute = Number(parts.find(p => p.type === "minute").value);
   const minutesNow = hour * 60 + minute;
-  STORE_IS_OPEN = minutesNow >= 8 * 60 && minutesNow < 18 * 60;
+  const [oh, om] = String(STORE_SETTINGS.openTime || "08:00").split(":").map(Number);
+  const [ch, cm] = String(STORE_SETTINGS.closeTime || "18:00").split(":").map(Number);
+  STORE_IS_OPEN = minutesNow >= (oh * 60 + om) && minutesNow < (ch * 60 + cm);
 
   const el = document.getElementById("openStatus");
   if (el) {
@@ -919,8 +933,8 @@ function updateOpenStatus() {
     const btn = document.getElementById(id);
     if (!btn) return;
     btn.innerHTML = STORE_IS_OPEN
-      ? "🟢 Pesan via WhatsApp<br>0895-1234-0428"
-      : "🕒 Pre-order via WhatsApp<br>0895-1234-0428";
+      ? `🟢 Pesan via WhatsApp<br>${formatPhone(WHATSAPP)}`
+      : `🕒 Pre-order via WhatsApp<br>${formatPhone(WHATSAPP)}`;
   });
 }
 
@@ -980,6 +994,9 @@ function changeQty(id, delta) {
   input.value = val;
 }
 function addFromQty(id, name, price) {
+  if (LIVE_PRODUCTS[id] && Number.isFinite(Number(LIVE_PRODUCTS[id].price))) {
+    price = Number(LIVE_PRODUCTS[id].price);
+  }
   if (STOCK[id] === false) {
     alert("Maaf, menu ini sedang habis.");
     return;
@@ -1016,8 +1033,11 @@ function addCombo() {
     return;
   }
   const existing = findItem(id);
-  if (existing) existing.qty += 1;
-  else cart.push({id, name:"Paket Hemat Gorengan Komplit", price:10000, qty:1});
+  if (existing) {
+    existing.qty += 1;
+    existing.price = Number(LIVE_PRODUCTS[id]?.price ?? existing.price);
+  }
+  else cart.push({id, name:"Paket Hemat Gorengan Komplit", price:Number(LIVE_PRODUCTS[id]?.price ?? 10000), qty:1});
   saveCart();
   renderCart();
 }
@@ -1098,7 +1118,7 @@ function checkoutWA(mode) {
   }
 
   if (deliveryType === "Antar" && totalPrice() < MIN_DELIVERY) {
-    alert("Minimal pesanan untuk diantar adalah Rp20.000.");
+    alert(`Minimal pesanan untuk diantar adalah ${formatRp(MIN_DELIVERY)}.`);
     return;
   }
 
@@ -1112,7 +1132,7 @@ function checkoutWA(mode) {
   text += "*Metode:* " + encodeURIComponent(deliveryType) + "%0A";
   if (deliveryType === "Antar") {
     text += "*Alamat:* " + encodeURIComponent(deliveryAddress) + "%0A";
-    text += "*Ongkir:* Dikonfirmasi melalui WhatsApp%0A";
+    text += "*Ongkir:* " + encodeURIComponent(STORE_SETTINGS.deliveryNote) + "%0A";
   }
   text += "%0A";
 
@@ -1149,6 +1169,81 @@ document.querySelectorAll("#navLinks a").forEach(a => {
   a.addEventListener("click", () => document.getElementById("navLinks").classList.remove("show"));
 });
 
+
+
+function formatTimeShort(v, fallback) {
+  const s = String(v || fallback || "").slice(0,5);
+  return /^\d{2}:\d{2}$/.test(s) ? s : fallback;
+}
+
+function normalizeWhatsApp(value) {
+  const digits = String(value || "").replace(/\D/g, "");
+  if (!digits) return "6289512340428";
+  return digits.startsWith("0") ? `62${digits.slice(1)}` : digits;
+}
+
+function formatPhone(value) {
+  const local = normalizeWhatsApp(value).replace(/^62/, "0");
+  return local.replace(/^(\d{4})(\d{4})(\d+)$/, "$1-$2-$3");
+}
+
+async function syncFromDatabase() {
+  if (!window.GM_DB?.enabled) return;
+  try {
+    const [rows, settings] = await Promise.all([
+      GM_DB.getProducts(),
+      GM_DB.getSettings()
+    ]);
+
+    rows.forEach(row => {
+      LIVE_PRODUCTS[row.id] = row;
+      STOCK[row.id] = row.is_available !== false;
+
+      const card = document.querySelector(`.product-card[data-id="${row.id}"]`);
+      if (card) {
+        const priceEl = card.querySelector(".price");
+        const badgeEl = card.querySelector(".product-badge");
+        if (priceEl) priceEl.textContent = formatRp(row.price);
+        if (row.badge) {
+          if (badgeEl) badgeEl.textContent = row.badge;
+          else {
+            const image = card.querySelector(".product-image");
+            if (image) image.insertAdjacentHTML("afterbegin", `<span class="product-badge">${row.badge}</span>`);
+          }
+        } else if (badgeEl) {
+          badgeEl.remove();
+        }
+      }
+
+      if (row.id === "paketkomplit") {
+        const comboPrice = document.querySelector(".combo-price");
+        if (comboPrice) comboPrice.textContent = formatRp(row.price);
+      }
+    });
+
+    if (settings) {
+      STORE_SETTINGS.openTime = formatTimeShort(settings.open_time, "08:00");
+      STORE_SETTINGS.closeTime = formatTimeShort(settings.close_time, "18:00");
+      STORE_SETTINGS.timezone = settings.timezone || "Asia/Makassar";
+      STORE_SETTINGS.deliveryNote = settings.delivery_note || "Ongkir dikonfirmasi melalui WhatsApp";
+      MIN_DELIVERY = Number(settings.min_delivery ?? 20000);
+
+      const hours = document.getElementById("hoursText");
+      if (hours) hours.textContent = `${STORE_SETTINGS.openTime} - ${STORE_SETTINGS.closeTime} WITA`;
+
+      document.querySelectorAll(".min-delivery-text").forEach(el => el.textContent = formatRp(MIN_DELIVERY));
+      document.querySelectorAll(".delivery-note-text").forEach(el => el.textContent = STORE_SETTINGS.deliveryNote + ".");
+
+      if (settings.whatsapp) WHATSAPP = normalizeWhatsApp(settings.whatsapp);
+    }
+
+    applyStockStatus();
+    updateOpenStatus();
+    renderCart();
+  } catch (e) {
+    console.warn("Database tidak dapat dimuat, menggunakan data fallback.", e);
+  }
+}
 
 function bindCheckoutPersistence() {
   const pairs = [
@@ -1201,6 +1296,7 @@ applyStockStatus();
 updateOpenStatus();
 setInterval(updateOpenStatus, 60000);
 renderCart();
+syncFromDatabase();
 
 
 let deferredInstallPrompt = null;

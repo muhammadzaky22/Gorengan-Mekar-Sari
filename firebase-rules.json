@@ -1,0 +1,16 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "products": {
+      ".read": true,
+      ".write": "auth != null && auth.uid === 'YZ164ihHK1RQmNVVSi4O5bC6JNB3'"
+    },
+    "settings": {
+      "main": {
+        ".read": true,
+        ".write": "auth != null && auth.uid === 'YZ164ihHK1RQmNVVSi4O5bC6JNB3'"
+      }
+    }
+  }
+}
