@@ -1,4 +1,4 @@
-const CACHE = "gorengan-mekarsari-v1";
+const CACHE = "gorengan-mekarsari-v2-online";
 const ASSETS = [
   "./",
   "./index.html",
